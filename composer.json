@@ -25,12 +25,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Ivinteractive\\LaravelRotation\\": "src"
+            "IvInteractive\\LaravelRotation\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Ivinteractive\\LaravelRotation\\Tests\\": "tests"
+            "IvInteractive\\LaravelRotation\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -44,10 +44,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Ivinteractive\\LaravelRotation\\LaravelRotationServiceProvider"
+                "IvInteractive\\LaravelRotation\\LaravelRotationServiceProvider"
             ],
             "aliases": {
-                "LaravelRotation": "Ivinteractive\\LaravelRotation\\LaravelRotationFacade"
+                "LaravelRotation": "IvInteractive\\LaravelRotation\\LaravelRotationFacade"
             }
         }
     }

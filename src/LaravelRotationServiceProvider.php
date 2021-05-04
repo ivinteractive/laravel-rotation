@@ -1,6 +1,6 @@
 <?php
 
-namespace Ivinteractive\LaravelRotation;
+namespace IvInteractive\LaravelRotation;
 
 use Illuminate\Support\ServiceProvider;
 
