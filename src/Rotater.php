@@ -35,7 +35,7 @@ class Rotater
 							->select([$this->getPrimaryKey(), $this->getColumn()])
 							->whereNotNull($this->getColumn())
 							->orderBy($this->getPrimaryKey())
-							->chunk(250, function ($records) use ($bar) {
+							->chunk(config('laravel-rotation.chunk-size'), function ($records) use ($bar) {
 								foreach ($records as $record) {
 									$this->rotateRecord($record);
 									$bar->advance();
