@@ -17,7 +17,9 @@ class LaravelRotationServiceProvider extends ServiceProvider
             ], 'config');
 
             // Registering package commands.
-            // $this->commands([]);
+            $this->commands([
+                \IvInteractive\LaravelRotation\Console\Commands\RotateKey::class,
+            ]);
         }
     }
 
