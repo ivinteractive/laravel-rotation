@@ -32,7 +32,7 @@ class Rotater
 	public function rotate(?ProgressBar $bar=null)
 	{
 		$records = app('db')->table($this->getTable())
-							->select([$this->getPrimaryKey(), $this->getColumn(), 'question_id'])
+							->select([$this->getPrimaryKey(), $this->getColumn()])
 							->whereNotNull($this->getColumn())
 							->orderBy($this->getPrimaryKey())
 							->chunk(250, function ($records) use ($bar) {
