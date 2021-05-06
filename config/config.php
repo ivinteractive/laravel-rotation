@@ -4,5 +4,6 @@ return [
 	'columns' => [
 		// tablename.primary_key.column,
 	],
-	'chunk-size' => 250,
+	'chunk-size' => 1000,
+	'old-key' => env('OLD_KEY', null),
 ];

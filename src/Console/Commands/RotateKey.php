@@ -12,7 +12,7 @@ class RotateKey extends KeyGenerateCommand
      *
      * @var string
      */
-    protected $signature = 'rotation:run';
+    protected $signature = 'rotation:run {--horizon}';
 
     /**
      * The console command description.
@@ -38,9 +38,10 @@ class RotateKey extends KeyGenerateCommand
      */
     public function handle()
     {
-        $key = $this->generateRandomKey();
+        $oldKey = config('app.key');
+        $newKey = $this->generateRandomKey();
 
-        $rotater = new Rotater(config('app.key'), $key);
+        $rotater = new Rotater($oldKey, $newKey);
 
         $this->info('A new application key has been generated. Laravel Rotation will re-encrypt the following data:');
         $this->newLine();
@@ -58,25 +59,80 @@ class RotateKey extends KeyGenerateCommand
 
         if ($this->confirm('Do you wish to continue?')) {
 
-            $this->info($key);
+            $this->info($newKey);
 
-            if (! $this->setKeyInEnvironmentFile($key)) {
+            if (! $this->setKeyInEnvironmentFile($newKey)) {
                 return;
             }
 
             $this->info('Application key set successfully.');
 
+            if (file_exists(base_path('bootstrap/cache/config.php')))
+                $this->call('config:cache');
+
+            if ($this->option('horizon'))
+                $this->call('horizon:terminate');
+            else
+                $this->call('queue:restart');
+
             foreach($columns as $col) {
                 $rotater->setColumnIdentifier($col);
                 $bar = $this->output->createProgressBar($rotater->getCount());
 
-                $this->info('Re-encrypting data for '.$col.'...');
+                $message = config('queue.default') === 'sync' ? 'Re-encrypting data' : 'Dispatching data re-encryption jobs';
+                $this->info($message.' for '.$col.'...');
 
                 $bar->start();
                 $rotater->rotate($bar);
                 $bar->finish();
+                $this->newLine();
             }
         }
 
+    }
+
+    /**
+     * Set the application key in the environment file.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    protected function setKeyInEnvironmentFile($key)
+    {
+        $currentKey = $this->laravel['config']['app.key'];
+
+        if(!parent::setKeyInEnvironmentFile($key))
+            return false;
+
+        $this->writeNewEnvironmentFileWithOld($currentKey);
+
+        return true;
+    }
+
+    /**
+     * Write a new environment file with the given key.
+     *
+     * @param  string  $key
+     * @return void
+     */
+    protected function writeNewEnvironmentFileWithOld($key)
+    {
+        file_put_contents($this->laravel->environmentFilePath(), preg_replace(
+            $this->keyReplacementPattern(),
+            '',
+            file_get_contents($this->laravel->environmentFilePath())
+        ).PHP_EOL.'OLD_KEY='.$key);
+    }
+
+    /**
+     * Get a regex pattern that will match env APP_KEY with any random key.
+     *
+     * @return string
+     */
+    protected function keyReplacementPatternOld()
+    {
+        $escaped = preg_quote('='.$this->laravel['config']['old.key'], '/');
+
+        return "/^OLD_KEY{$escaped}/m";
     }
 }

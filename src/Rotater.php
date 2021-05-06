@@ -5,6 +5,7 @@ namespace IvInteractive\LaravelRotation;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Helper\ProgressBar;
+use IvInteractive\LaravelRotation\Jobs\ReencryptionJob;
 
 class Rotater
 {
@@ -36,14 +37,16 @@ class Rotater
 							->whereNotNull($this->getColumn())
 							->orderBy($this->getPrimaryKey())
 							->chunk(config('laravel-rotation.chunk-size'), function ($records) use ($bar) {
-								foreach ($records as $record) {
-									$this->rotateRecord($record);
-									$bar->advance();
-								}
+								dispatch(new ReencryptionJob($this->columnIdentifier, $records->pluck($this->getPrimaryKey())->toArray()));
+								$bar->advance(config('laravel-rotation.chunk-size'));
+								// foreach ($records as $record) {
+								// 	$this->rotateRecord($record);
+								// 	$bar->advance();
+								// }
 							});
 	}
 
-	protected function rotateRecord(\stdClass $record)
+	public function rotateRecord(\stdClass $record)
 	{
 		app('db')->table($this->getTable())
 				 ->where($this->getPrimaryKey(), $record->{$this->getPrimaryKey()})
@@ -97,4 +100,18 @@ class Rotater
 		return $this->recordCounts[$this->columnIdentifier];
 	}
 
+	// public function __serialize() : array
+	// {
+	// 	return [
+	// 		'columnIdentifier' => $this->columnIdentifier,
+	// 	];
+	// }
+
+	// public function __unserialize(array $data) : void
+	// {
+	// 	app('log')->info(config('laravel-rotation.old-key'));
+	// 	$this->oldEncrypter = new Encrypter($this->parseKey(config('laravel-rotation.old-key')), config('app.cipher'));
+	// 	$this->newEncrypter = new Encrypter($this->parseKey(config('app.key')), config('app.cipher'));
+	// 	$this->columnIdentifier = $data['columnIdentifier'];
+	// }
 }
