@@ -51,15 +51,13 @@ class RotateKey extends KeyGenerateCommand
         $this->info('A new application key has been generated. Laravel Rotation will re-encrypt the following data:');
         $this->newLine();
 
-        $columns = config('laravel-rotation.columns');
+        $columns = config('rotation.columns');
 
         foreach($columns as $col) {
             $this->printColumnInfo($col);
         }
 
         if ($this->confirm('Do you wish to continue?')) {
-
-            $this->info($newKey);
 
             if (! $this->setKeyInEnvironmentFile($newKey)) {
                 return;

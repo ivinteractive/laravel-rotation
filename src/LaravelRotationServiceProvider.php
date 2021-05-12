@@ -3,6 +3,7 @@
 namespace IvInteractive\LaravelRotation;
 
 use Illuminate\Support\ServiceProvider;
+use IvInteractive\LaravelRotation\Rotater;
 
 class LaravelRotationServiceProvider extends ServiceProvider
 {
@@ -13,7 +14,7 @@ class LaravelRotationServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/config.php' => config_path('laravel-rotation.php'),
+                __DIR__.'/../config/config.php' => config_path('rotation.php'),
             ], 'config');
 
             // Registering package commands.
@@ -29,6 +30,8 @@ class LaravelRotationServiceProvider extends ServiceProvider
     public function register()
     {
         // Automatically apply the package configuration
-        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'laravel-rotation');
+        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'rotation');
+
+        $this->app->bind(Rotater::class, config('rotation.rotater_class'));
     }
 }

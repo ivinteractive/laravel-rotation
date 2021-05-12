@@ -40,7 +40,7 @@ class Rotater
 							->select([$this->getPrimaryKey(), $this->getColumn()])
 							->whereNotNull($this->getColumn())
 							->orderBy($this->getPrimaryKey())
-							->chunk(config('laravel-rotation.chunk-size'), function ($records) use ($batch, $bar) {
+							->chunk(config('rotation.chunk_size'), function ($records) use ($batch, $bar) {
 								$batch->add(new ReencryptionJob($this->columnIdentifier, $records->pluck($this->getPrimaryKey())->toArray()));
 								$bar->advance($records->count());
 							});
@@ -122,16 +122,33 @@ class Rotater
 		return $this->recordCounts[$this->columnIdentifier];
 	}
 
-	public function getNewEncrypter()
+	/**
+	 * Get the old Encrypter
+	 * @return Encrypter|null
+	 */
+	public function getOldEncrypter() : ?Encrypter
+	{
+		return $this->oldEncrypter;
+	}
+
+	/**
+	 * Get the new Encrypter
+	 * @return Encrypter|null
+	 */
+	public function getNewEncrypter() : ?Encrypter
 	{
 		return $this->newEncrypter;
 	}
 
-	public static function finish()
+	/**
+	 * The actions to run when the batch is complete
+	 * @param  Illuminate\Bus\Batch  $batch
+	 */
+	public static function finish(\Illuminate\Bus\Batch $batch) : void
 	{
 		\Illuminate\Support\Facades\Artisan::call('up');
         app('log')->info('Reencryption complete!');
         \Illuminate\Support\Facades\Notification::route('mail', 'cs@ivinteractive.com')
-            ->notify(new \IvInteractive\LaravelRotation\Notifications\ReencryptionComplete);
+            ->notify(new \IvInteractive\LaravelRotation\Notifications\ReencryptionComplete($batch));
 	}
 }

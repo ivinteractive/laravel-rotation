@@ -25,7 +25,7 @@ class ReencryptionJob implements ShouldQueue
 
 	public function handle()
 	{
-		$rotater = new Rotater(config('laravel-rotation.old-key'), config('app.key'));
+		$rotater = new Rotater(config('rotation.old_key'), config('app.key'));
 		$rotater->setColumnIdentifier($this->columnIdentifier);
 
 		$records = app('db')->table($rotater->getTable())
