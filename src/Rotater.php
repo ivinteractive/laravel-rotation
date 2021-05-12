@@ -4,7 +4,9 @@ namespace IvInteractive\LaravelRotation;
 
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Str;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Symfony\Component\Console\Helper\ProgressBar;
+use IvInteractive\LaravelRotation\Exceptions\AlreadyReencryptedException;
 use IvInteractive\LaravelRotation\Jobs\ReencryptionJob;
 
 class Rotater
@@ -30,34 +32,54 @@ class Rotater
 		$this->columnIdentifier = $columnIdentifier;
 	}
 
-	public function rotate(?ProgressBar $bar=null)
+	public function rotate(\Illuminate\Bus\PendingBatch $batch, \Symfony\Component\Console\Helper\ProgressBar $bar)
 	{
+		$bar->start();
+
 		$records = app('db')->table($this->getTable())
 							->select([$this->getPrimaryKey(), $this->getColumn()])
 							->whereNotNull($this->getColumn())
 							->orderBy($this->getPrimaryKey())
-							->chunk(config('laravel-rotation.chunk-size'), function ($records) use ($bar) {
-								dispatch(new ReencryptionJob($this->columnIdentifier, $records->pluck($this->getPrimaryKey())->toArray()));
-								$bar->advance(config('laravel-rotation.chunk-size'));
-								// foreach ($records as $record) {
-								// 	$this->rotateRecord($record);
-								// 	$bar->advance();
-								// }
+							->chunk(config('laravel-rotation.chunk-size'), function ($records) use ($batch, $bar) {
+								$batch->add(new ReencryptionJob($this->columnIdentifier, $records->pluck($this->getPrimaryKey())->toArray()));
+								$bar->advance($records->count());
 							});
+
+		$bar->finish();
 	}
 
 	public function rotateRecord(\stdClass $record)
 	{
-		app('db')->table($this->getTable())
-				 ->where($this->getPrimaryKey(), $record->{$this->getPrimaryKey()})
-				 ->update([
-				 	$this->getColumn() => $this->encrypt($this->decrypt($record->{$this->getColumn()})),
-				 ]);
+		if ($reencrypted = $this->reencrypt($record->{$this->getColumn()}))
+			app('db')->table($this->getTable())
+					 ->where($this->getPrimaryKey(), $record->{$this->getPrimaryKey()})
+					 ->update([
+					 	$this->getColumn() => $reencrypted,
+					 ]);
+	}
+
+	private function reencrypt(string $value) : ?string
+	{
+		try {
+			$decrypted = $this->decrypt($value);
+			return $this->encrypt($decrypted);
+		} catch (AlreadyReencryptedException $e) {
+			return $value;
+		}
 	}
 
 	private function decrypt($encryptedValue)
 	{
-		return $this->oldEncrypter->decrypt($encryptedValue);
+		try {
+			return $this->oldEncrypter->decrypt($encryptedValue);
+		} catch (DecryptException $e) {
+			try {
+				$decrypted = $this->newEncrypter->decrypt($encryptedValue);
+				throw new AlreadyReencryptedException('The value has already been decrypted.');
+			} catch (DecryptException $ex) {
+				throw $e;
+			}
+		}
 	}
 
 	private function encrypt($value) : string
@@ -100,18 +122,16 @@ class Rotater
 		return $this->recordCounts[$this->columnIdentifier];
 	}
 
-	// public function __serialize() : array
-	// {
-	// 	return [
-	// 		'columnIdentifier' => $this->columnIdentifier,
-	// 	];
-	// }
+	public function getNewEncrypter()
+	{
+		return $this->newEncrypter;
+	}
 
-	// public function __unserialize(array $data) : void
-	// {
-	// 	app('log')->info(config('laravel-rotation.old-key'));
-	// 	$this->oldEncrypter = new Encrypter($this->parseKey(config('laravel-rotation.old-key')), config('app.cipher'));
-	// 	$this->newEncrypter = new Encrypter($this->parseKey(config('app.key')), config('app.cipher'));
-	// 	$this->columnIdentifier = $data['columnIdentifier'];
-	// }
+	public static function finish()
+	{
+		\Illuminate\Support\Facades\Artisan::call('up');
+        app('log')->info('Reencryption complete!');
+        \Illuminate\Support\Facades\Notification::route('mail', 'cs@ivinteractive.com')
+            ->notify(new \IvInteractive\LaravelRotation\Notifications\ReencryptionComplete);
+	}
 }

@@ -4,6 +4,8 @@ namespace IvInteractive\LaravelRotation\Console\Commands;
 
 use Illuminate\Foundation\Console\KeyGenerateCommand;
 use IvInteractive\LaravelRotation\Rotater;
+use Illuminate\Bus\Batch;
+use Illuminate\Support\Facades\Bus;
 
 class RotateKey extends KeyGenerateCommand
 {
@@ -20,6 +22,9 @@ class RotateKey extends KeyGenerateCommand
      * @var string
      */
     protected $description = 'Rotate the application encryption key and update all encrypted data.';
+
+    protected $rotater;
+    protected $batch;
 
     /**
      * Create a new command instance.
@@ -41,7 +46,7 @@ class RotateKey extends KeyGenerateCommand
         $oldKey = config('app.key');
         $newKey = $this->generateRandomKey();
 
-        $rotater = new Rotater($oldKey, $newKey);
+        $this->rotater = new Rotater($oldKey, $newKey);
 
         $this->info('A new application key has been generated. Laravel Rotation will re-encrypt the following data:');
         $this->newLine();
@@ -49,12 +54,7 @@ class RotateKey extends KeyGenerateCommand
         $columns = config('laravel-rotation.columns');
 
         foreach($columns as $col) {
-            $rotater->setColumnIdentifier($col);
-
-            $this->info('Table name: '.$rotater->getTable());
-            $this->info('Column name: '.$rotater->getColumn());
-            $this->info('Number of records: '.$rotater->getCount());
-            $this->newLine();
+            $this->printColumnInfo($col);
         }
 
         if ($this->confirm('Do you wish to continue?')) {
@@ -66,29 +66,65 @@ class RotateKey extends KeyGenerateCommand
             }
 
             $this->info('Application key set successfully.');
+            
+            $this->refreshConfig($newKey);
 
-            if (file_exists(base_path('bootstrap/cache/config.php')))
-                $this->call('config:cache');
-
-            if ($this->option('horizon'))
-                $this->call('horizon:terminate');
-            else
-                $this->call('queue:restart');
+            $this->batch = Bus::batch([])
+                              ->name('Reencryption Job');
 
             foreach($columns as $col) {
-                $rotater->setColumnIdentifier($col);
-                $bar = $this->output->createProgressBar($rotater->getCount());
-
-                $message = config('queue.default') === 'sync' ? 'Re-encrypting data' : 'Dispatching data re-encryption jobs';
-                $this->info($message.' for '.$col.'...');
-
-                $bar->start();
-                $rotater->rotate($bar);
-                $bar->finish();
-                $this->newLine();
+                $this->queueToBatch($col);
             }
-        }
 
+            $this->batch
+                 ->then([Rotater::class, 'finish'])
+                 ->dispatch();
+
+            $secret = (string) \Illuminate\Support\Str::uuid();
+            $this->info('Go to '.url($secret).' to view the site while it is in maintenance mode.');
+            $this->call('down', ['--secret'=>$secret]);
+        }
+    }
+
+    protected function queueToBatch(string $column) : void
+    {        
+        $message = config('queue.default') === 'sync' ? 'Re-encrypting data' : 'Batching data re-encryption jobs';
+        $this->info($message.' for '.$column.'...');
+        $this->rotater->setColumnIdentifier($column);
+
+        $bar = $this->output->createProgressBar($this->rotater->getCount());
+
+        $this->rotater->rotate($this->batch, $bar);
+
+        $this->newLine();
+    }
+
+    protected function printColumnInfo(string $column) : void
+    {
+        $this->rotater->setColumnIdentifier($column);
+
+        $this->info('Table name: '.$this->rotater->getTable());
+        $this->info('Column name: '.$this->rotater->getColumn());
+        $this->info('Number of records: '.$this->rotater->getCount());
+        $this->newLine();
+    }
+
+    protected function refreshConfig(string $newKey) : void
+    {
+        if (file_exists(base_path('bootstrap/cache/config.php')))
+            $this->call('config:cache');
+
+        config(['app.key' => $newKey]);
+        app()->singleton('encrypter', function () {
+            return $this->rotater->getNewEncrypter();
+        });
+        \Opis\Closure\SerializableClosure::removeSecurityProvider();
+        \Opis\Closure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
+
+        if ($this->option('horizon'))
+            $this->call('horizon:terminate');
+        else
+            $this->call('queue:restart');
     }
 
     /**
