@@ -45,7 +45,7 @@ class ReencryptionComplete extends Notification implements ShouldQueue
     }
 
     /**
-     * Get a text representation of the duration to process the reenryption batch
+     * Get a text representation of the duration to process the reenryption batch.
      * @return string
      */
     protected function duration() : string

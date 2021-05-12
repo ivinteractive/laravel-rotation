@@ -21,18 +21,31 @@ class Rotater
 
 	private $recordCounts = [];
 
+	/**
+	 * @param string $oldKey The old base64-encoded key
+	 * @param string $newKey The new base64-encoded key
+	 */
 	public function __construct(string $oldKey, string $newKey)
 	{
 		$this->oldEncrypter = new Encrypter($this->parseKey($oldKey), config('app.cipher'));
 		$this->newEncrypter = new Encrypter($this->parseKey($newKey), config('app.cipher'));
 	}
 
-	public function setColumnIdentifier(string $columnIdentifier)
+	/**
+	 * Set the identifier for the database column (table.id.column).
+	 * @param string $columnIdentifier
+	 */
+	public function setColumnIdentifier(string $columnIdentifier) : void
 	{
 		$this->columnIdentifier = $columnIdentifier;
 	}
 
-	public function rotate(\Illuminate\Bus\PendingBatch $batch, \Symfony\Component\Console\Helper\ProgressBar $bar)
+	/**
+	 * Get chunked database records and push to the queue for reencryption.
+	 * @param  \Illuminate\Bus\PendingBatch                  $batch
+	 * @param  \Symfony\Component\Console\Helper\ProgressBar $bar
+	 */
+	public function rotate(\Illuminate\Bus\PendingBatch $batch, \Symfony\Component\Console\Helper\ProgressBar $bar) : void
 	{
 		$bar->start();
 
@@ -48,7 +61,11 @@ class Rotater
 		$bar->finish();
 	}
 
-	public function rotateRecord(\stdClass $record)
+	/**
+	 * Reencrypt an individual database record.
+	 * @param  \stdClass $record
+	 */
+	public function rotateRecord(\stdClass $record) : void
 	{
 		if ($reencrypted = $this->reencrypt($record->{$this->getColumn()}))
 			app('db')->table($this->getTable())
@@ -58,7 +75,12 @@ class Rotater
 					 ]);
 	}
 
-	private function reencrypt(string $value) : ?string
+	/**
+	 * Reencrypt an encrypted value.
+	 * @param  string $encryptedValue
+	 * @return string The value after encryption with the new key
+	 */
+	private function reencrypt(string $encryptedValue) : string
 	{
 		try {
 			$decrypted = $this->decrypt($value);
@@ -68,7 +90,12 @@ class Rotater
 		}
 	}
 
-	private function decrypt($encryptedValue)
+	/**
+	 * Decrypt the encrypted value with the old key.
+	 * @param  string $encryptedValue
+	 * @return mixed  The decrypted value
+	 */
+	private function decrypt(string $encryptedValue)
 	{
 		try {
 			return $this->oldEncrypter->decrypt($encryptedValue);
@@ -82,11 +109,22 @@ class Rotater
 		}
 	}
 
+	/**
+	 * Encrypt the decrypted value with the new encryption key.
+	 * @param  mixed   $value
+	 * @return string  The reencrypted value
+	 */
 	private function encrypt($value) : string
 	{
 		return $this->newEncrypter->encrypt($value);
 	}
 
+    /**
+     * Parse the encryption key.
+     *
+     * @param  string The encoded key from the config
+     * @return string
+     */
 	private function parseKey(string $key)
 	{
         if (Str::startsWith($key, $prefix = 'base64:')) {
@@ -96,21 +134,37 @@ class Rotater
         return $key;
 	}
 
+	/**
+	 * Get the table for the currently-set column.
+	 * @return string The table name
+	 */
 	public function getTable() : ?string
 	{
-		return explode('.', $this->columnIdentifier)[0];
+		return explode('.', $this->columnIdentifier)[0] ?? null;
 	}
 
+	/**
+	 * Get the primary key for the currently-set column.
+	 * @return string The primary key column name
+	 */
 	public function getPrimaryKey() : ?string
 	{
-		return explode('.', $this->columnIdentifier)[1];
+		return explode('.', $this->columnIdentifier)[1] ?? null;
 	}
 
+	/**
+	 * Get the name for the currently-set column.
+	 * @return string The column name
+	 */
 	public function getColumn() : ?string
 	{
-		return explode('.', $this->columnIdentifier)[2];
+		return explode('.', $this->columnIdentifier)[2] ?? null;
 	}
 
+	/**
+	 * Get the number of records for the currently-set column.
+	 * @return int|null  The count
+	 */
 	public function getCount() : ?int
 	{
 		if ($this->getTable()===null)
@@ -123,7 +177,7 @@ class Rotater
 	}
 
 	/**
-	 * Get the old Encrypter
+	 * Get the old Encrypter.
 	 * @return Encrypter|null
 	 */
 	public function getOldEncrypter() : ?Encrypter
@@ -132,7 +186,7 @@ class Rotater
 	}
 
 	/**
-	 * Get the new Encrypter
+	 * Get the new Encrypter.
 	 * @return Encrypter|null
 	 */
 	public function getNewEncrypter() : ?Encrypter
@@ -141,7 +195,7 @@ class Rotater
 	}
 
 	/**
-	 * The actions to run when the batch is complete
+	 * The actions to run when the batch is complete.
 	 * @param  Illuminate\Bus\Batch  $batch
 	 */
 	public static function finish(\Illuminate\Bus\Batch $batch) : void

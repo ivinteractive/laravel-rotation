@@ -84,6 +84,10 @@ class RotateKey extends KeyGenerateCommand
         }
     }
 
+    /**
+     * Push reencryption jobs to the queue.
+     * @param  string $column The column identifier
+     */
     protected function queueToBatch(string $column) : void
     {        
         $message = config('queue.default') === 'sync' ? 'Re-encrypting data' : 'Batching data re-encryption jobs';
@@ -97,6 +101,10 @@ class RotateKey extends KeyGenerateCommand
         $this->newLine();
     }
 
+    /**
+     * Print out information about the columns to be reencrypted.
+     * @param  string $column The column identifier
+     */
     protected function printColumnInfo(string $column) : void
     {
         $this->rotater->setColumnIdentifier($column);
@@ -107,18 +115,27 @@ class RotateKey extends KeyGenerateCommand
         $this->newLine();
     }
 
+    /**
+     * Refresh the configuration to include the new encryption key.
+     * @param  string $newKey The base64-encoded encryption key
+     */
     protected function refreshConfig(string $newKey) : void
     {
+        // Recache the config
         if (file_exists(base_path('bootstrap/cache/config.php')))
             $this->call('config:cache');
 
+        // Set the encryption key and encrypter in the current config and container
         config(['app.key' => $newKey]);
         app()->singleton('encrypter', function () {
             return $this->rotater->getNewEncrypter();
         });
+
+        // Set the encryption key as the new key for serialization when dispatching the batch
         \Opis\Closure\SerializableClosure::removeSecurityProvider();
         \Opis\Closure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
 
+        // Restart Horizon or the queue
         if ($this->option('horizon'))
             $this->call('horizon:terminate');
         else
@@ -131,7 +148,7 @@ class RotateKey extends KeyGenerateCommand
      * @param  string  $key
      * @return bool
      */
-    protected function setKeyInEnvironmentFile($key)
+    protected function setKeyInEnvironmentFile($key) : bool
     {
         $currentKey = $this->laravel['config']['app.key'];
 
@@ -147,7 +164,6 @@ class RotateKey extends KeyGenerateCommand
      * Write a new environment file with the given key.
      *
      * @param  string  $key
-     * @return void
      */
     protected function writeNewEnvironmentFileWithOld($key)
     {
@@ -159,7 +175,7 @@ class RotateKey extends KeyGenerateCommand
     }
 
     /**
-     * Get a regex pattern that will match env APP_KEY with any random key.
+     * Get a regex pattern that will match env OLD_KEY with any random key.
      *
      * @return string
      */
