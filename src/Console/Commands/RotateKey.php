@@ -5,7 +5,6 @@ namespace IvInteractive\LaravelRotation\Console\Commands;
 use Illuminate\Foundation\Console\KeyGenerateCommand;
 use IvInteractive\LaravelRotation\Rotater;
 use Illuminate\Bus\Batch;
-use Illuminate\Support\Facades\Bus;
 
 class RotateKey extends KeyGenerateCommand
 {
@@ -67,16 +66,13 @@ class RotateKey extends KeyGenerateCommand
             
             $this->refreshConfig($newKey);
 
-            $this->batch = Bus::batch([])
-                              ->name('Reencryption Job');
+            $this->batch = $this->rotater->makeBatch();
 
             foreach($columns as $col) {
                 $this->queueToBatch($col);
             }
 
-            $this->batch
-                 ->then([Rotater::class, 'finish'])
-                 ->dispatch();
+            $this->batch->dispatch();
 
             $secret = (string) \Illuminate\Support\Str::uuid();
             $this->info('Go to '.url($secret).' to view the site while it is in maintenance mode.');

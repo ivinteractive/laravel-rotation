@@ -15,7 +15,7 @@ class ReencryptionComplete extends Notification implements ShouldQueue
 
     public $batch;
 
-    public function __construct(Batch $batch)
+    public function __construct(array $batch)
     {
         $this->batch = $batch;
     }
@@ -50,8 +50,8 @@ class ReencryptionComplete extends Notification implements ShouldQueue
      */
     protected function duration() : string
     {
-        $finished = new DateTime($this->batch->finishedAt);
-        $created = new DateTime($this->batch->createdAt);
+        $finished = new DateTime($this->batch['finishedAt']);
+        $created = new DateTime($this->batch['createdAt']);
 
         $diff = $finished->diff($created);
 
@@ -62,7 +62,7 @@ class ReencryptionComplete extends Notification implements ShouldQueue
             'seconds' => (int) $diff->format('%s'),
         ];
 
-        return collection($time)
+        return (new \Illuminate\Support\Collection($time))
                     ->filter(function ($value) { return $value > 0; })
                     ->map(function ($value, $label) {
                         return $value.' '.\Illuminate\Support\Str::plural($label, $value);

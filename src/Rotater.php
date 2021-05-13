@@ -8,6 +8,8 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Symfony\Component\Console\Helper\ProgressBar;
 use IvInteractive\LaravelRotation\Exceptions\AlreadyReencryptedException;
 use IvInteractive\LaravelRotation\Jobs\ReencryptionJob;
+use Illuminate\Bus\PendingBatch;
+use Illuminate\Support\Facades\Bus;
 
 class Rotater
 {
@@ -45,7 +47,7 @@ class Rotater
 	 * @param  \Illuminate\Bus\PendingBatch                  $batch
 	 * @param  \Symfony\Component\Console\Helper\ProgressBar $bar
 	 */
-	public function rotate(\Illuminate\Bus\PendingBatch $batch, \Symfony\Component\Console\Helper\ProgressBar $bar) : void
+	public function rotate(PendingBatch $batch, \Symfony\Component\Console\Helper\ProgressBar $bar) : void
 	{
 		$bar->start();
 
@@ -83,10 +85,10 @@ class Rotater
 	private function reencrypt(string $encryptedValue) : string
 	{
 		try {
-			$decrypted = $this->decrypt($value);
+			$decrypted = $this->decrypt($encryptedValue);
 			return $this->encrypt($decrypted);
 		} catch (AlreadyReencryptedException $e) {
-			return $value;
+			return $encryptedValue;
 		}
 	}
 
@@ -203,6 +205,23 @@ class Rotater
 		\Illuminate\Support\Facades\Artisan::call('up');
         app('log')->info('Reencryption complete!');
         \Illuminate\Support\Facades\Notification::route('mail', 'cs@ivinteractive.com')
-            ->notify(new \IvInteractive\LaravelRotation\Notifications\ReencryptionComplete($batch));
+            ->notify(new \IvInteractive\LaravelRotation\Notifications\ReencryptionComplete($batch->toArray()));
+	}
+
+	public function makeBatch() : PendingBatch
+	{
+		$batch = Bus::batch([])
+                    ->name('Reencryption Job - ' . now()->format('Y-m-d H:i:s'))
+                    ->then([static::class, 'finish']);
+
+        if (config('rotation.connection') !== 'default') {
+            $batch->onConnection(config('rotation.connection'));
+        }
+
+        if (config('rotation.queue') !== 'default') {
+            $batch->onQueue(config('rotation.queue'));
+        }
+
+        return $batch;
 	}
 }
