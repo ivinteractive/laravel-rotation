@@ -1,10 +1,10 @@
 <?php
 
-namespace IvInteractive\LaravelRotation\Console\Commands;
+namespace IvInteractive\Rotation\Console\Commands;
 
 use Illuminate\Bus\Batch;
 use Illuminate\Foundation\Console\KeyGenerateCommand;
-use IvInteractive\LaravelRotation\Rotater;
+use IvInteractive\Rotation\Rotater;
 
 class RotateKey extends KeyGenerateCommand
 {

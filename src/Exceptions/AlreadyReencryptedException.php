@@ -1,6 +1,6 @@
 <?php
 
-namespace IvInteractive\LaravelRotation\Exceptions;
+namespace IvInteractive\Rotation\Exceptions;
 
 use Exception;
 

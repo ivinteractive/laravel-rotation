@@ -1,14 +1,14 @@
 <?php
 
-namespace IvInteractive\LaravelRotation;
+namespace IvInteractive\Rotation;
 
 use Illuminate\Bus\PendingBatch;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Str;
-use IvInteractive\LaravelRotation\Exceptions\AlreadyReencryptedException;
-use IvInteractive\LaravelRotation\Jobs\ReencryptionJob;
+use IvInteractive\Rotation\Exceptions\AlreadyReencryptedException;
+use IvInteractive\Rotation\Jobs\ReencryptionJob;
 
 class Rotater
 {
@@ -207,7 +207,7 @@ class Rotater
         \Illuminate\Support\Facades\Artisan::call('up');
         app('log')->info('Reencryption complete!');
         \Illuminate\Support\Facades\Notification::route('mail', 'cs@ivinteractive.com')
-            ->notify(new \IvInteractive\LaravelRotation\Notifications\ReencryptionComplete($batch->toArray()));
+            ->notify(new \IvInteractive\Rotation\Notifications\ReencryptionComplete($batch->toArray()));
     }
 
     public function makeBatch(): PendingBatch

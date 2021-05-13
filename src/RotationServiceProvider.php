@@ -1,10 +1,10 @@
 <?php
 
-namespace IvInteractive\LaravelRotation;
+namespace IvInteractive\Rotation;
 
 use Illuminate\Support\ServiceProvider;
 
-class LaravelRotationServiceProvider extends ServiceProvider
+class RotationServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
@@ -18,7 +18,7 @@ class LaravelRotationServiceProvider extends ServiceProvider
 
             // Registering package commands.
             $this->commands([
-                \IvInteractive\LaravelRotation\Console\Commands\RotateKey::class,
+                \IvInteractive\Rotation\Console\Commands\RotateKey::class,
             ]);
         }
     }

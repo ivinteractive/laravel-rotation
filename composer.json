@@ -26,17 +26,16 @@
     },
     "autoload": {
         "psr-4": {
-            "IvInteractive\\LaravelRotation\\": "src"
+            "IvInteractive\\Rotation\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "IvInteractive\\LaravelRotation\\Tests\\": "tests"
+            "IvInteractive\\Rotation\\Tests\\": "tests"
         }
     },
     "scripts": {
         "test": "vendor/bin/phpunit",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
         "cs": "./vendor/bin/php-cs-fixer fix --diff"
     },
     "config": {
@@ -45,11 +44,8 @@
     "extra": {
         "laravel": {
             "providers": [
-                "IvInteractive\\LaravelRotation\\LaravelRotationServiceProvider"
-            ],
-            "aliases": {
-                "LaravelRotation": "IvInteractive\\LaravelRotation\\LaravelRotationFacade"
-            }
+                "IvInteractive\\Rotation\\RotationServiceProvider"
+            ]
         }
     }
 }

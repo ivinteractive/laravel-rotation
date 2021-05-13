@@ -1,6 +1,6 @@
 <?php
 
-namespace IvInteractive\LaravelRotation\Notifications;
+namespace IvInteractive\Rotation\Notifications;
 
 use DateTime;
 use Illuminate\Bus\Batch;
