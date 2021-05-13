@@ -12,28 +12,33 @@ use IvInteractive\LaravelRotation\Rotater;
 
 class ReencryptionJob implements ShouldQueue
 {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
-	protected $columnIdentifier;
-	protected $ids;
+    protected $columnIdentifier;
+    protected $ids;
 
-	public function __construct(string $columnIdentifier, array $ids)
-	{
-		$this->columnIdentifier = $columnIdentifier;
-		$this->ids = $ids;
-	}
+    public function __construct(string $columnIdentifier, array $ids)
+    {
+        $this->columnIdentifier = $columnIdentifier;
+        $this->ids = $ids;
+    }
 
-	public function handle()
-	{
-		$rotater = new Rotater(config('rotation.old_key'), config('app.key'));
-		$rotater->setColumnIdentifier($this->columnIdentifier);
+    public function handle()
+    {
+        $rotater = new Rotater(config('rotation.old_key'), config('app.key'));
+        $rotater->setColumnIdentifier($this->columnIdentifier);
 
-		$records = app('db')->table($rotater->getTable())
-							->select([$rotater->getPrimaryKey(), $rotater->getColumn()])
-							->whereIn($rotater->getPrimaryKey(), $this->ids)
-							->get();
+        $records = app('db')->table($rotater->getTable())
+                            ->select([$rotater->getPrimaryKey(), $rotater->getColumn()])
+                            ->whereIn($rotater->getPrimaryKey(), $this->ids)
+                            ->get();
 
-		foreach($records as $record)
-			$rotater->rotateRecord($record);
-	}	
+        foreach ($records as $record) {
+            $rotater->rotateRecord($record);
+        }
+    }
 }

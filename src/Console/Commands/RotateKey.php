@@ -2,9 +2,9 @@
 
 namespace IvInteractive\LaravelRotation\Console\Commands;
 
+use Illuminate\Bus\Batch;
 use Illuminate\Foundation\Console\KeyGenerateCommand;
 use IvInteractive\LaravelRotation\Rotater;
-use Illuminate\Bus\Batch;
 
 class RotateKey extends KeyGenerateCommand
 {
@@ -52,23 +52,22 @@ class RotateKey extends KeyGenerateCommand
 
         $columns = config('rotation.columns');
 
-        foreach($columns as $col) {
+        foreach ($columns as $col) {
             $this->printColumnInfo($col);
         }
 
         if ($this->confirm('Do you wish to continue?')) {
-
             if (! $this->setKeyInEnvironmentFile($newKey)) {
                 return;
             }
 
             $this->info('Application key set successfully.');
-            
+
             $this->refreshConfig($newKey);
 
             $this->batch = $this->rotater->makeBatch();
 
-            foreach($columns as $col) {
+            foreach ($columns as $col) {
                 $this->queueToBatch($col);
             }
 
@@ -84,8 +83,8 @@ class RotateKey extends KeyGenerateCommand
      * Push reencryption jobs to the queue.
      * @param  string $column The column identifier
      */
-    protected function queueToBatch(string $column) : void
-    {        
+    protected function queueToBatch(string $column): void
+    {
         $message = config('queue.default') === 'sync' ? 'Re-encrypting data' : 'Batching data re-encryption jobs';
         $this->info($message.' for '.$column.'...');
         $this->rotater->setColumnIdentifier($column);
@@ -101,7 +100,7 @@ class RotateKey extends KeyGenerateCommand
      * Print out information about the columns to be reencrypted.
      * @param  string $column The column identifier
      */
-    protected function printColumnInfo(string $column) : void
+    protected function printColumnInfo(string $column): void
     {
         $this->rotater->setColumnIdentifier($column);
 
@@ -115,11 +114,12 @@ class RotateKey extends KeyGenerateCommand
      * Refresh the configuration to include the new encryption key.
      * @param  string $newKey The base64-encoded encryption key
      */
-    protected function refreshConfig(string $newKey) : void
+    protected function refreshConfig(string $newKey): void
     {
         // Recache the config
-        if (file_exists(base_path('bootstrap/cache/config.php')))
+        if (file_exists(base_path('bootstrap/cache/config.php'))) {
             $this->call('config:cache');
+        }
 
         // Set the encryption key and encrypter in the current config and container
         config(['app.key' => $newKey]);
@@ -132,10 +132,11 @@ class RotateKey extends KeyGenerateCommand
         \Opis\Closure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
 
         // Restart Horizon or the queue
-        if ($this->option('horizon'))
+        if ($this->option('horizon')) {
             $this->call('horizon:terminate');
-        else
+        } else {
             $this->call('queue:restart');
+        }
     }
 
     /**
@@ -144,12 +145,13 @@ class RotateKey extends KeyGenerateCommand
      * @param  string  $key
      * @return bool
      */
-    protected function setKeyInEnvironmentFile($key) : bool
+    protected function setKeyInEnvironmentFile($key): bool
     {
         $currentKey = $this->laravel['config']['app.key'];
 
-        if(!parent::setKeyInEnvironmentFile($key))
+        if (!parent::setKeyInEnvironmentFile($key)) {
             return false;
+        }
 
         $this->writeNewEnvironmentFileWithOld($currentKey);
 

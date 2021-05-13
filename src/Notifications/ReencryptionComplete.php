@@ -2,12 +2,12 @@
 
 namespace IvInteractive\LaravelRotation\Notifications;
 
+use DateTime;
+use Illuminate\Bus\Batch;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Bus\Batch;
-use DateTime;
 
 class ReencryptionComplete extends Notification implements ShouldQueue
 {
@@ -39,7 +39,7 @@ class ReencryptionComplete extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
+        return (new MailMessage())
                     ->subject('Reencryption complete!')
                     ->line('The reencryption job has finished processing in '.$this->duration().'.');
     }
@@ -48,7 +48,7 @@ class ReencryptionComplete extends Notification implements ShouldQueue
      * Get a text representation of the duration to process the reenryption batch.
      * @return string
      */
-    protected function duration() : string
+    protected function duration(): string
     {
         $finished = new DateTime($this->batch['finishedAt']);
         $created = new DateTime($this->batch['createdAt']);
@@ -63,7 +63,9 @@ class ReencryptionComplete extends Notification implements ShouldQueue
         ];
 
         return (new \Illuminate\Support\Collection($time))
-                    ->filter(function ($value) { return $value > 0; })
+                    ->filter(function ($value) {
+                        return $value > 0;
+                    })
                     ->map(function ($value, $label) {
                         return $value.' '.\Illuminate\Support\Str::plural($label, $value);
                     })

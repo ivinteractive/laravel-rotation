@@ -3,7 +3,6 @@
 namespace IvInteractive\LaravelRotation;
 
 use Illuminate\Support\ServiceProvider;
-use IvInteractive\LaravelRotation\Rotater;
 
 class LaravelRotationServiceProvider extends ServiceProvider
 {
