@@ -7,6 +7,13 @@ use IvInteractive\Rotation\Rotater;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
+    public function setUp() : void
+    {
+        parent::setUp();
+
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
+    }
+
     protected function getPackageProviders($app)
     {
         return [\IvInteractive\Rotation\RotationServiceProvider::class];
@@ -18,5 +25,10 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 		$newKey = Encrypter::generateKey(config('app.cipher'));
 
 		return new Rotater('base64:'.base64_encode($oldKey), 'base64:'.base64_encode($newKey));
+    }
+
+    protected function makeEncrypter($key)
+    {
+        return new Encrypter($key, config('app.cipher'));
     }
 }

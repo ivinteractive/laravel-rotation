@@ -2,7 +2,6 @@
 
 namespace IvInteractive\Rotation\Tests\Unit;
 
-use Illuminate\Encryption\Encrypter;
 use IvInteractive\Rotation\Rotater;
 
 class EncryptionTest extends \IvInteractive\Rotation\Tests\TestCase
@@ -65,10 +64,5 @@ class EncryptionTest extends \IvInteractive\Rotation\Tests\TestCase
 		$method = $class->getMethod($methodName);
 		$method->setAccessible(true);
 		return $method;
-	}
-
-	private function makeEncrypter($key)
-	{
-		return new Encrypter($key, config('app.cipher'));
 	}
 }

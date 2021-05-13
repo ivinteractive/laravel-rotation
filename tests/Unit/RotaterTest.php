@@ -6,7 +6,7 @@ use IvInteractive\Rotation\Rotater;
 
 class RotaterTest extends \IvInteractive\Rotation\Tests\TestCase
 {
-	const COLUMN_ID = 'users.id.name';
+	const COLUMN_ID = 'users.id.dob';
 
 	private $rotater;
 
@@ -29,6 +29,6 @@ class RotaterTest extends \IvInteractive\Rotation\Tests\TestCase
 
 	public function testRotaterColumn()
 	{
-		$this->assertSame('name', $this->rotater->getColumn());
+		$this->assertSame('dob', $this->rotater->getColumn());
 	}
 }
