@@ -56,10 +56,10 @@ class ReencryptionComplete extends Notification implements ShouldQueue
         $diff = $finished->diff($created);
 
         $time = [
-            'days' => (int) $diff->format('%a'),
-            'hours' => (int) $diff->format('%h'),
-            'minutes' => (int) $diff->format('%i'),
-            'seconds' => (int) $diff->format('%s'),
+            'day' => (int) $diff->format('%a'),
+            'hour' => (int) $diff->format('%h'),
+            'minute' => (int) $diff->format('%i'),
+            'second' => (int) $diff->format('%s'),
         ];
 
         return (new \Illuminate\Support\Collection($time))
@@ -67,6 +67,6 @@ class ReencryptionComplete extends Notification implements ShouldQueue
                     ->map(function ($value, $label) {
                         return $value.' '.\Illuminate\Support\Str::plural($label, $value);
                     })
-                    ->join(', ', ', and ');
+                    ->join(', ', ' and ');
     }
 }
