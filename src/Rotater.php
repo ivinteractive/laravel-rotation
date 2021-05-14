@@ -16,9 +16,6 @@ class Rotater
     private $newEncrypter;
 
     private $columnIdentifier;
-    private $tableName;
-    private $columnName;
-    private $primaryKey;
 
     private $recordCounts = [];
 
@@ -140,27 +137,27 @@ class Rotater
      * Get the table for the currently-set column.
      * @return string The table name
      */
-    public function getTable(): ?string
+    public function getTable(): string
     {
-        return explode('.', $this->columnIdentifier)[0] ?? null;
+        return explode('.', $this->columnIdentifier)[0];
     }
 
     /**
      * Get the primary key for the currently-set column.
      * @return string The primary key column name
      */
-    public function getPrimaryKey(): ?string
+    public function getPrimaryKey(): string
     {
-        return explode('.', $this->columnIdentifier)[1] ?? null;
+        return explode('.', $this->columnIdentifier)[1];
     }
 
     /**
      * Get the name for the currently-set column.
      * @return string The column name
      */
-    public function getColumn(): ?string
+    public function getColumn(): string
     {
-        return explode('.', $this->columnIdentifier)[2] ?? null;
+        return explode('.', $this->columnIdentifier)[2];
     }
 
     /**
@@ -169,7 +166,7 @@ class Rotater
      */
     public function getCount(): ?int
     {
-        if ($this->getTable()===null) {
+        if (!strlen($this->getTable())) {
             return null;
         }
 

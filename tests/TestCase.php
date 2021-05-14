@@ -10,21 +10,29 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     public function setUp() : void
     {
         parent::setUp();
-
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
     }
 
     protected function getPackageProviders($app)
     {
-        return [\IvInteractive\Rotation\RotationServiceProvider::class];
+        return [
+            \IvInteractive\Rotation\Tests\Resources\TestingServiceProvider::class,
+            \IvInteractive\Rotation\RotationServiceProvider::class,
+        ];
     }
 
-    protected function makeRotater(): Rotater
+    protected function makeRotater(bool $setColumnIdentifier=true): Rotater
     {
     	$oldKey = Encrypter::generateKey(config('app.cipher'));
 		$newKey = Encrypter::generateKey(config('app.cipher'));
 
-		return new Rotater('base64:'.base64_encode($oldKey), 'base64:'.base64_encode($newKey));
+		$rotater = new Rotater('base64:'.base64_encode($oldKey), 'base64:'.base64_encode($newKey));
+
+        if ($setColumnIdentifier) {
+            $rotater->setColumnIdentifier('users.id.dob');
+        }
+
+        return $rotater;
     }
 
     protected function makeEncrypter($key)

@@ -15,6 +15,11 @@ class User extends Model
         'dob',
 	];
 
+    protected static function newFactory()
+    {
+        return \IvInteractive\Rotation\Tests\Database\Factories\UserFactory::new();
+    }
+
     // public function getDobAttribute($value)
     // {
     //     return decrypt($value);
