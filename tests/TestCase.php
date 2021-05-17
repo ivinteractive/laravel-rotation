@@ -10,7 +10,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     public function setUp() : void
     {
         parent::setUp();
-        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/Database/migrations');
     }
 
     protected function getPackageProviders($app)
