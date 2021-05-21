@@ -13,7 +13,9 @@ class RotateKey extends KeyGenerateCommand
      *
      * @var string
      */
-    protected $signature = 'rotation:run {--horizon}';
+    protected $signature = 'rotation:run
+                            {--horizon : Terminate Laravel Horizon instead of restarting the queue}
+                            {--force : Skip the confirmation question before batching reencryption jobs}';
 
     /**
      * The console command description.
@@ -56,9 +58,9 @@ class RotateKey extends KeyGenerateCommand
             $this->printColumnInfo($col);
         }
 
-        if ($this->confirm('Do you wish to continue?')) {
+        if ($this->option('force') || $this->confirm('Do you wish to continue?')) {
             if (! $this->setKeyInEnvironmentFile($newKey)) {
-                return;
+                return 1;
             }
 
             $this->info('Application key set successfully.');
@@ -76,7 +78,11 @@ class RotateKey extends KeyGenerateCommand
             $secret = (string) \Illuminate\Support\Str::uuid();
             $this->info('Go to '.url($secret).' to view the site while it is in maintenance mode.');
             $this->call('down', ['--secret'=>$secret]);
+        } else {
+            return 1;
         }
+
+        return 0;
     }
 
     /**
@@ -149,7 +155,11 @@ class RotateKey extends KeyGenerateCommand
     {
         $currentKey = $this->laravel['config']['app.key'];
 
-        if (!parent::setKeyInEnvironmentFile($key)) {
+        try {
+            if (!parent::setKeyInEnvironmentFile($key)) {
+                return false;
+            }
+        } catch (\Exception $e) {
             return false;
         }
 
@@ -166,7 +176,7 @@ class RotateKey extends KeyGenerateCommand
     protected function writeNewEnvironmentFileWithOld($key)
     {
         file_put_contents($this->laravel->environmentFilePath(), preg_replace(
-            $this->keyReplacementPattern(),
+            $this->keyReplacementPatternOld(),
             '',
             file_get_contents($this->laravel->environmentFilePath())
         ).PHP_EOL.'OLD_KEY='.$key);

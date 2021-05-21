@@ -9,4 +9,5 @@ return [
     'rotater_class' => \IvInteractive\Rotation\Rotater::class,
     'connection' => 'default',
     'queue' => 'default',
+    'notification-recipient' => 'cs@ivinteractive.com',
 ];

@@ -203,14 +203,14 @@ class Rotater
     {
         \Illuminate\Support\Facades\Artisan::call('up');
         app('log')->info('Reencryption complete!');
-        \Illuminate\Support\Facades\Notification::route('mail', 'cs@ivinteractive.com')
+        \Illuminate\Support\Facades\Notification::route('mail', config('rotation.email-recipient'))
             ->notify(new \IvInteractive\Rotation\Notifications\ReencryptionComplete($batch->toArray()));
     }
 
     public function makeBatch(): PendingBatch
     {
         $batch = Bus::batch([])
-                    ->name('Reencryption Job - ' . now()->format('Y-m-d H:i:s'))
+                    ->name('reencryption_' . now()->format('Y-m-d H:i:s'))
                     ->then([static::class, 'finish']);
 
         if (config('rotation.connection') !== 'default') {

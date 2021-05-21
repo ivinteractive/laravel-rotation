@@ -18,6 +18,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         return [
             \IvInteractive\Rotation\Tests\Resources\TestingServiceProvider::class,
             \IvInteractive\Rotation\RotationServiceProvider::class,
+            \Laravel\Horizon\HorizonApplicationServiceProvider::class,
         ];
     }
 
