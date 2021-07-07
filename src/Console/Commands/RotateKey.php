@@ -124,7 +124,9 @@ class RotateKey extends KeyGenerateCommand
     {
         // Recache the config
         if (file_exists(base_path('bootstrap/cache/config.php'))) {
+            // @codeCoverageIgnoreStart
             $this->call('config:cache');
+            // @codeCoverageIgnoreEnd
         }
 
         // Set the encryption key and encrypter in the current config and container

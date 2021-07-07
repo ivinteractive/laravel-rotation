@@ -40,4 +40,23 @@ class ReencryptionTest extends \IvInteractive\Rotation\Tests\TestCase
 
         $this->assertSame($this->dob, $encrypter->decrypt($user->dob));
     }
+
+    public function testReencryptionThroughJob()
+    {
+        $oldKey = $this->rotater->getOldEncrypter()->getKey();
+        $newKey = $this->rotater->getNewEncrypter()->getKey();
+
+        config([
+            'rotation.old_key' => 'base64:'.base64_encode($oldKey),
+            'app.key' => 'base64:'.base64_encode($newKey),
+        ]);
+
+        $encrypter = $this->makeEncrypter(($this->rotater->getNewEncrypter())->getKey());
+
+        dispatch(new \IvInteractive\Rotation\Jobs\ReencryptionJob('users.id.dob', [$this->user->id]));
+
+        $user = $this->user->fresh();
+
+        $this->assertSame($this->dob, $encrypter->decrypt($user->dob));
+    }
 }

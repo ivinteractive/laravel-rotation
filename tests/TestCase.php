@@ -7,10 +7,16 @@ use IvInteractive\Rotation\Rotater;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
-    public function setUp() : void
+    // public function setUp() : void
+    // {
+    //     parent::setUp();
+    //     // $this->loadMigrationsFrom(__DIR__ . '/Database/migrations');
+    // }
+
+    public function tearDown() : void
     {
-        parent::setUp();
-        $this->loadMigrationsFrom(__DIR__ . '/Database/migrations');
+        $this->artisan('config:clear');
+        parent::tearDown();
     }
 
     protected function getPackageProviders($app)
@@ -18,7 +24,6 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         return [
             \IvInteractive\Rotation\Tests\Resources\TestingServiceProvider::class,
             \IvInteractive\Rotation\RotationServiceProvider::class,
-            \Laravel\Horizon\HorizonApplicationServiceProvider::class,
         ];
     }
 

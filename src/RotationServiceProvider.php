@@ -14,7 +14,7 @@ class RotationServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__.'/../config/config.php' => config_path('rotation.php'),
-            ], 'config');
+            ], 'rotation.config');
 
             // Registering package commands.
             $this->commands([

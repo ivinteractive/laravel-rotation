@@ -12,6 +12,8 @@ class TestingServiceProvider extends ServiceProvider
 
         touch($db);
 
+        $this->loadMigrationsFrom(__DIR__ . '/../Database/migrations');
+
         // config([
         //     'database.default' => 'sqlite',
         //     'database.connections.sqlite.database' => $db,

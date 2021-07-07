@@ -65,12 +65,4 @@ class RotationCommandTest extends \IvInteractive\Rotation\Tests\TestCase
         $this->artisan('rotation:run', ['--force'=>true])
              ->assertExitCode(1);
     }
-
-    public function testRestartHorizon()
-    {
-        $this->app['Illuminate\Contracts\Console\Kernel']->registerCommand(\Laravel\Horizon\Console\TerminateCommand::class);
-
-        $this->artisan('rotation:run', ['--force'=>true, '--horizon'=>true])
-             ->assertExitCode(0);
-    }
 }
