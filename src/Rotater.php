@@ -52,7 +52,7 @@ class Rotater
                             ->whereNotNull($this->getColumn())
                             ->orderBy($this->getPrimaryKey())
                             ->chunk(config('rotation.chunk_size'), function ($records) use ($batch, $bar) {
-                                $batch->add(new ReencryptionJob($this->columnIdentifier, $records->pluck($this->getPrimaryKey())->toArray()));
+                                $batch->add([new ReencryptionJob($this->columnIdentifier, $records->pluck($this->getPrimaryKey())->toArray())]);
                                 $bar->advance($records->count());
                             });
 
