@@ -3,7 +3,6 @@
 namespace IvInteractive\Rotation\Notifications;
 
 use DateTime;
-use Illuminate\Bus\Batch;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -13,11 +12,11 @@ class ReencryptionComplete extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public $batch;
+    public $batchData;
 
-    public function __construct(array $batch)
+    public function __construct(array $batchData)
     {
-        $this->batch = $batch;
+        $this->batchData = $batchData;
     }
 
     /**
@@ -45,13 +44,13 @@ class ReencryptionComplete extends Notification implements ShouldQueue
     }
 
     /**
-     * Get a text representation of the duration to process the reenryption batch.
+     * Get a text representation of the duration to process the reenryption batch data.
      * @return string
      */
     protected function duration(): string
     {
-        $finished = new DateTime($this->batch['finishedAt']);
-        $created = new DateTime($this->batch['createdAt']);
+        $finished = new DateTime($this->batchData['finishedAt']);
+        $created = new DateTime($this->batchData['createdAt']);
 
         $diff = $finished->diff($created);
 
