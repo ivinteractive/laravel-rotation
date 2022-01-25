@@ -2,18 +2,18 @@
 
 namespace IvInteractive\Rotation\Tests\Resources;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class User extends Model
 {
-	use HasFactory;
+    use HasFactory;
 
-	protected $fillable = [
+    protected $fillable = [
         'email',
         'password',
         'dob',
-	];
+    ];
 
     protected static function newFactory()
     {

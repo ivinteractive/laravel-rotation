@@ -3,7 +3,6 @@
 namespace IvInteractive\Rotation\Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use IvInteractive\Rotation\Rotater;
 use IvInteractive\Rotation\Tests\Resources\User;
 
 class ReencryptionTest extends \IvInteractive\Rotation\Tests\TestCase
@@ -15,7 +14,7 @@ class ReencryptionTest extends \IvInteractive\Rotation\Tests\TestCase
     protected $userObj;
     protected $dob;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         parent::setUp();
 

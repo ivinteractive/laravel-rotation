@@ -3,24 +3,23 @@
 namespace IvInteractive\Rotation\Tests\Unit;
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use IvInteractive\Rotation\Rotater;
 use IvInteractive\Rotation\Tests\Resources\User;
 
 class RecordCountTest extends \IvInteractive\Rotation\Tests\TestCase
 {
     use DatabaseMigrations;
 
-	private $rotater;
+    private $rotater;
 
-    const COUNT = 10;
+    public const COUNT = 10;
 
-	public function setUp() : void
-	{
-		parent::setUp();
-		$this->rotater = $this->makeRotater();
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->rotater = $this->makeRotater();
 
         User::factory()->count(static::COUNT)->create();
-	}
+    }
 
     public function testRecordCount()
     {
@@ -37,13 +36,15 @@ class RecordCountTest extends \IvInteractive\Rotation\Tests\TestCase
 
     public function testRecordCountNonNull()
     {
+        $toEncrypt = 5;
+
         app('db')->table('users')
-                 ->take(5)
+                 ->take($toEncrypt)
                  ->update([
                     'dob' => null,
                  ]);
 
-        $this->assertSame((static::COUNT - 5), $this->rotater->getCount());
+        $this->assertSame((static::COUNT - $toEncrypt), $this->rotater->getCount());
     }
 
     public function testRecordCountNotSet()

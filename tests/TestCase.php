@@ -13,7 +13,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     //     // $this->loadMigrationsFrom(__DIR__ . '/Database/migrations');
     // }
 
-    public function tearDown() : void
+    public function tearDown(): void
     {
         $this->artisan('config:clear');
         parent::tearDown();
@@ -29,10 +29,10 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
     protected function makeRotater(bool $setColumnIdentifier=true): Rotater
     {
-    	$oldKey = Encrypter::generateKey(config('app.cipher'));
-		$newKey = Encrypter::generateKey(config('app.cipher'));
+        $oldKey = Encrypter::generateKey(config('app.cipher'));
+        $newKey = Encrypter::generateKey(config('app.cipher'));
 
-		$rotater = new Rotater('base64:'.base64_encode($oldKey), 'base64:'.base64_encode($newKey));
+        $rotater = new Rotater('base64:'.base64_encode($oldKey), 'base64:'.base64_encode($newKey));
 
         if ($setColumnIdentifier) {
             $rotater->setColumnIdentifier('users.id.dob');

@@ -10,9 +10,9 @@ class RotationHorizonCommandTest extends \IvInteractive\Rotation\Tests\TestCase
 {
     use DatabaseMigrations;
 
-    const COUNT = 5;
+    public const COUNT = 5;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         parent::setUp();
 

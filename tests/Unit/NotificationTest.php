@@ -3,15 +3,15 @@
 namespace IvInteractive\Rotation\Tests\Unit;
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use IvInteractive\Rotation\Tests\Resources\User;
 use IvInteractive\Rotation\Notifications\ReencryptionComplete;
+use IvInteractive\Rotation\Tests\Resources\User;
 
 class NotificationTest extends \IvInteractive\Rotation\Tests\TestCase
 {
     use DatabaseMigrations;
 
-    const CREATED_AT = '2020-01-01 00:00:00';
-    const FINISHED_AT = '2020-01-01 01:23:45';
+    public const CREATED_AT = '2020-01-01 00:00:00';
+    public const FINISHED_AT = '2020-01-01 01:23:45';
 
     public function setUp(): void
     {
