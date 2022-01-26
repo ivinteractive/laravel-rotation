@@ -1,10 +1,11 @@
-# Very short description of the package
+# Laravel Rotater
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/ivinteractive/laravel-rotation.svg?style=flat-square)](https://packagist.org/packages/ivinteractive/laravel-rotation)
 [![Total Downloads](https://img.shields.io/packagist/dt/ivinteractive/laravel-rotation.svg?style=flat-square)](https://packagist.org/packages/ivinteractive/laravel-rotation)
-![GitHub Actions](https://github.com/ivinteractive/laravel-rotation/actions/workflows/main.yml/badge.svg)
+![GitHub Actions](https://github.com/ivinteractive/laravel-rotation/actions/workflows/tests.yml/badge.svg)
+![License](https://img.shields.io/packagist/l/ivinteractive/laravel-rotation)
 
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what PSRs you support to avoid any confusion with users and contributors.
+Laravel Rotater is a package for reencrypting your data in case your application's encryption key becomes compromised. By running `php artisan rotation:run`, the package will generate a new application key and reencrypt all configured database columns using the the new key.
 
 ## Installation
 
@@ -46,7 +47,3 @@ If you discover any security related issues, please email cs@ivinteractive.com i
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
-## Laravel Package Boilerplate
-
-This package was generated using the [Laravel Package Boilerplate](https://laravelpackageboilerplate.com).
