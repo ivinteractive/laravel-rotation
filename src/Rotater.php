@@ -43,9 +43,11 @@ class Rotater
      * @param  \Illuminate\Bus\PendingBatch                  $batch
      * @param  \Symfony\Component\Console\Helper\ProgressBar $bar
      */
-    public function rotate(PendingBatch $batch, \Symfony\Component\Console\Helper\ProgressBar $bar): void
+    public function rotate(PendingBatch $batch, ?\Symfony\Component\Console\Helper\ProgressBar $bar=null): void
     {
-        $bar->start();
+        if ($bar !== null) {
+            $bar->start();
+        }
 
         $records = app('db')->table($this->getTable())
                             ->select([$this->getPrimaryKey(), $this->getColumn()])
@@ -53,10 +55,14 @@ class Rotater
                             ->orderBy($this->getPrimaryKey())
                             ->chunk(config('rotation.chunk_size'), function ($records) use ($batch, $bar) {
                                 $batch->add([new ReencryptionJob($this->columnIdentifier, $records->pluck($this->getPrimaryKey())->toArray())]);
-                                $bar->advance($records->count());
+                                if ($bar !== null) {
+                                    $bar->advance($records->count());
+                                }
                             });
 
-        $bar->finish();
+        if ($bar !== null) {
+            $bar->finish();
+        }
     }
 
     /**
@@ -202,15 +208,17 @@ class Rotater
     public static function finish(\Illuminate\Bus\Batch $batch): void
     {
         \Illuminate\Support\Facades\Artisan::call('up');
+
         app('log')->info('Reencryption complete!');
-        \Illuminate\Support\Facades\Notification::route('mail', config('rotation.email-recipient'))
-            ->notify(new \IvInteractive\Rotation\Notifications\ReencryptionComplete($batch->toArray()));
+
+        $notifiable = app(config('rotation.notifiable'));
+        $notifiable->notify(new \IvInteractive\Rotation\Notifications\ReencryptionComplete($batch->toArray()));
     }
 
     public function makeBatch(): PendingBatch
     {
         $batch = Bus::batch([])
-                    ->name('reencryption_' . now()->format('Y-m-d H:i:s'))
+                    ->name('reencryption_' . now()->format('Y-m-d_H:i:s'))
                     ->then([static::class, 'finish']);
 
         if (config('rotation.connection') !== 'default') {

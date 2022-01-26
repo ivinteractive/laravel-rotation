@@ -1,6 +1,6 @@
 <?php
 
-namespace IvInteractive\Rotation\Tests\Unit;
+namespace IvInteractive\Rotation\Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use IvInteractive\Rotation\Notifications\ReencryptionComplete;
