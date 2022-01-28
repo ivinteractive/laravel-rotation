@@ -85,7 +85,7 @@ class Rotater
      * @param  string $encryptedValue
      * @return string The value after encryption with the new key
      */
-    private function reencrypt(string $encryptedValue): string
+    public function reencrypt(string $encryptedValue): string
     {
         try {
             $decrypted = $this->decrypt($encryptedValue);
@@ -100,7 +100,7 @@ class Rotater
      * @param  string $encryptedValue
      * @return mixed  The decrypted value
      */
-    private function decrypt(string $encryptedValue)
+    protected function decrypt(string $encryptedValue)
     {
         try {
             return $this->oldEncrypter->decrypt($encryptedValue);
@@ -119,7 +119,7 @@ class Rotater
      * @param  mixed   $value
      * @return string  The reencrypted value
      */
-    private function encrypt($value): string
+    protected function encrypt($value): string
     {
         return $this->newEncrypter->encrypt($value);
     }
