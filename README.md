@@ -1,7 +1,7 @@
 # Laravel Rotater
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/ivinteractive/laravel-rotation.svg?style=flat-square)](https://packagist.org/packages/ivinteractive/laravel-rotation)
-[![Total Downloads](https://img.shields.io/packagist/dt/ivinteractive/laravel-rotation.svg?style=flat-square)](https://packagist.org/packages/ivinteractive/laravel-rotation)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/ivinteractive/laravel-rotation.svg)](https://packagist.org/packages/ivinteractive/laravel-rotation)
+[![Total Downloads](https://img.shields.io/packagist/dt/ivinteractive/laravel-rotation.svg)](https://packagist.org/packages/ivinteractive/laravel-rotation)
 ![GitHub Actions](https://github.com/ivinteractive/laravel-rotation/actions/workflows/tests.yml/badge.svg)
 ![License](https://img.shields.io/packagist/l/ivinteractive/laravel-rotation)
 
