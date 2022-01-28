@@ -56,4 +56,26 @@ class RotaterTest extends \IvInteractive\Rotation\Tests\TestCase
 
         $this->rotater->reencrypt($user->dob);
     }
+
+    public function testBatchConnectionConfiguration()
+    {
+        $connection = 'other-connection';
+
+        config(['rotation.connection' => $connection]);
+
+        $batch = $this->rotater->makeBatch();
+
+        $this->assertSame($connection, $batch->options['connection']);
+    }
+
+    public function testBatchQueueConfiguration()
+    {
+        $queue = 'other-queue';
+
+        config(['rotation.queue' => $queue]);
+
+        $batch = $this->rotater->makeBatch();
+
+        $this->assertSame($queue, $batch->options['queue']);
+    }
 }
