@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 use IvInteractive\Rotation\Exceptions\AlreadyReencryptedException;
 use IvInteractive\Rotation\Jobs\ReencryptionJob;
 
-class Rotater
+class Rotater implements RotaterInterface
 {
     private $oldEncrypter;
     private $newEncrypter;
@@ -207,12 +207,16 @@ class Rotater
      */
     public static function finish(\Illuminate\Bus\Batch $batch): void
     {
-        \Illuminate\Support\Facades\Artisan::call('up');
+        if (config('rotation.maintenance')) {
+            \Illuminate\Support\Facades\Artisan::call('up');
+        }
 
         app('log')->info('Reencryption complete!');
 
-        $notifiable = app(config('rotation.notifiable'));
-        $notifiable->notify(new \IvInteractive\Rotation\Notifications\ReencryptionComplete($batch->toArray()));
+        if (config('rotation.notification')) {
+            $notifiable = app(config('rotation.notifiable'));
+            $notifiable->notify(new \IvInteractive\Rotation\Notifications\ReencryptionComplete($batch->toArray()));
+        }
     }
 
     public function makeBatch(): PendingBatch

@@ -4,7 +4,7 @@ namespace IvInteractive\Rotation\Console\Commands;
 
 use Illuminate\Bus\Batch;
 use Illuminate\Foundation\Console\KeyGenerateCommand;
-use IvInteractive\Rotation\Rotater;
+use IvInteractive\Rotation\RotaterInterface;
 
 class RotateKey extends KeyGenerateCommand
 {
@@ -44,10 +44,9 @@ class RotateKey extends KeyGenerateCommand
      */
     public function handle()
     {
-        $oldKey = config('app.key');
         $newKey = $this->generateRandomKey();
 
-        $this->rotater = new Rotater($oldKey, $newKey);
+        $this->rotater = app(RotaterInterface::class, ['oldKey'=>config('app.key'), 'newKey'=>$newKey]);
 
         $this->info('A new application key has been generated. Laravel Rotation will re-encrypt the following data:');
         $this->newLine();
@@ -75,9 +74,11 @@ class RotateKey extends KeyGenerateCommand
 
             $this->batch->dispatch();
 
-            $secret = (string) \Illuminate\Support\Str::uuid();
-            $this->info('Go to '.url($secret).' to view the site while it is in maintenance mode.');
-            $this->call('down', ['--secret'=>$secret]);
+            if (config('rotation.maintenance')) {
+                $secret = (string) \Illuminate\Support\Str::uuid();
+                $this->info('Go to '.url($secret).' to view the site while it is in maintenance mode.');
+                $this->call('down', ['--secret'=>$secret]);
+            }
         } else {
             return 1;
         }

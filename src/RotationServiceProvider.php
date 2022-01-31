@@ -31,6 +31,6 @@ class RotationServiceProvider extends ServiceProvider
         // Automatically apply the package configuration
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'rotation');
 
-        $this->app->bind(Rotater::class, config('rotation.rotater_class'));
+        $this->app->bind(RotaterInterface::class, config('rotation.rotater_class'));
     }
 }

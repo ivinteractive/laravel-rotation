@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use IvInteractive\Rotation\Rotater;
+use IvInteractive\Rotation\RotaterInterface;
 
 class ReencryptionJob implements ShouldQueue
 {
@@ -29,7 +29,7 @@ class ReencryptionJob implements ShouldQueue
 
     public function handle()
     {
-        $rotater = new Rotater(config('rotation.old_key'), config('app.key'));
+        $rotater = app(RotaterInterface::class, ['oldKey'=>config('rotation.old_key'), 'newKey'=>config('app.key')]);
         $rotater->setColumnIdentifier($this->columnIdentifier);
 
         $records = app('db')->table($rotater->getTable())
