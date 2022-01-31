@@ -12,9 +12,8 @@ return [
     ],
 
     /**
-     * The key rotation command creates a job batch for each column to be reencrypted
-     * and chunks the records into separate jobs. This value controls the number of
-     * records processed in each job.
+     * The key rotation command creates a job batch and chunks the records into separate
+     * jobs. This value controls the number of records processed in each job.
      */
     'chunk_size' => 1000,
 

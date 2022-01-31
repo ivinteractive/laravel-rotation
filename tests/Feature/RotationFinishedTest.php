@@ -3,12 +3,14 @@
 namespace IvInteractive\Rotation\Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
+use IvInteractive\Rotation\Events\ReencryptionFinished;
 use IvInteractive\Rotation\Notifications\Notifiable;
-use IvInteractive\Rotation\Notifications\ReencryptionComplete;
+use IvInteractive\Rotation\Notifications\ReencryptionCompleteNotification;
 use IvInteractive\Rotation\Tests\Resources\User;
 
-class RotationNotificationTest extends \IvInteractive\Rotation\Tests\TestCase
+class RotationFinishedTest extends \IvInteractive\Rotation\Tests\TestCase
 {
     use DatabaseMigrations;
 
@@ -47,7 +49,7 @@ class RotationNotificationTest extends \IvInteractive\Rotation\Tests\TestCase
 
         Notification::assertSentTo(
             new Notifiable,
-            ReencryptionComplete::class,
+            ReencryptionCompleteNotification::class,
             function ($notification, $channels, $notifiable) {
                 return $notifiable->routeNotificationForMail() === static::EMAIL_ADDRESS;
             }
@@ -65,10 +67,22 @@ class RotationNotificationTest extends \IvInteractive\Rotation\Tests\TestCase
 
         Notification::assertSentTo(
             new Notifiable,
-            ReencryptionComplete::class,
+            ReencryptionCompleteNotification::class,
             function ($notification, $channels, $notifiable) {
                 return $notifiable->routeNotificationForSlack() === static::SLACK_WEBHOOK_URL;
             }
         );
+    }
+
+    public function testEventDispatched()
+    {
+        Event::fake();
+
+        config(['rotation.notification.channels' => ['slack']]);
+
+        $batch = $this->batch->dispatch();
+        $this->rotater::finish($batch);
+
+        Event::assertDispatched(ReencryptionFinished::class);
     }
 }

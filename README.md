@@ -38,9 +38,8 @@ return [
     ],
 
     /**
-     * The key rotation command creates a job batch for each column to be reencrypted
-     * and chunks the records into separate jobs. This value controls the number of
-     * records processed in each job.
+     * The key rotation command creates a job batch and chunks the records into separate
+     * jobs. This value controls the number of records processed in each job.
      */
     'chunk_size' => 1000,
 
@@ -103,6 +102,9 @@ The `--horizon` option will make the call to `horizon:terminate` instead of `que
 
 The `--force` option will skip a confirmation step that comes before making any changes to the config or pushing any jobs to the queue.
 
+### Events
+
+The `IvInteractive\Rotation\Events\ReencryptionFinished` event is fired upon the completion of the batched jobs.
 
 ### Testing
 

@@ -211,11 +211,13 @@ class Rotater implements RotaterInterface
             \Illuminate\Support\Facades\Artisan::call('up');
         }
 
-        app('log')->info('Reencryption complete!');
+        $batchData = $batch->toArray();
+
+        event(new \IvInteractive\Rotation\Events\ReencryptionFinished($batchData));
 
         if (config('rotation.notification')) {
             $notifiable = app(config('rotation.notifiable'));
-            $notifiable->notify(new \IvInteractive\Rotation\Notifications\ReencryptionComplete($batch->toArray()));
+            $notifiable->notify(new \IvInteractive\Rotation\Notifications\ReencryptionCompleteNotification($batchData));
         }
     }
 
