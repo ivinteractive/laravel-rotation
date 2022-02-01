@@ -48,8 +48,8 @@ class RotationFinishedTest extends \IvInteractive\Rotation\Tests\TestCase
         $this->rotater::finish($batch);
 
         Notification::assertSentTo(
-            new Notifiable,
-            ReencryptionCompleteNotification::class,
+            new Notifiable(),
+            ReencryptionFinishedNotification::class,
             function ($notification, $channels, $notifiable) {
                 return $notifiable->routeNotificationForMail() === static::EMAIL_ADDRESS;
             }
@@ -66,8 +66,8 @@ class RotationFinishedTest extends \IvInteractive\Rotation\Tests\TestCase
         $this->rotater::finish($batch);
 
         Notification::assertSentTo(
-            new Notifiable,
-            ReencryptionCompleteNotification::class,
+            new Notifiable(),
+            ReencryptionFinishedNotification::class,
             function ($notification, $channels, $notifiable) {
                 return $notifiable->routeNotificationForSlack() === static::SLACK_WEBHOOK_URL;
             }
