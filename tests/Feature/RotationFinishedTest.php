@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 use IvInteractive\Rotation\Events\ReencryptionFinished;
 use IvInteractive\Rotation\Notifications\Notifiable;
-use IvInteractive\Rotation\Notifications\ReencryptionCompleteNotification;
+use IvInteractive\Rotation\Notifications\ReencryptionFinishedNotification;
 use IvInteractive\Rotation\Tests\Resources\User;
 
 class RotationFinishedTest extends \IvInteractive\Rotation\Tests\TestCase

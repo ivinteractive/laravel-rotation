@@ -3,7 +3,7 @@
 namespace IvInteractive\Rotation\Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use IvInteractive\Rotation\Notifications\ReencryptionCompleteNotification;
+use IvInteractive\Rotation\Notifications\ReencryptionFinishedNotification;
 use IvInteractive\Rotation\Tests\Resources\User;
 
 class NotificationTest extends \IvInteractive\Rotation\Tests\TestCase
@@ -21,7 +21,7 @@ class NotificationTest extends \IvInteractive\Rotation\Tests\TestCase
 
     public function testNotificationMailSubject()
     {
-        $notification = new ReencryptionCompleteNotification(['createdAt'=>static::CREATED_AT, 'finishedAt'=>static::FINISHED_AT]);
+        $notification = new ReencryptionFinishedNotification(['createdAt'=>static::CREATED_AT, 'finishedAt'=>static::FINISHED_AT]);
         $mail = $notification->toMail($this->user);
 
         $this->assertSame('Reencryption complete!', $mail->subject);
@@ -29,7 +29,7 @@ class NotificationTest extends \IvInteractive\Rotation\Tests\TestCase
 
     public function testNotificationMailDuration()
     {
-        $notification = new ReencryptionCompleteNotification(['createdAt'=>static::CREATED_AT, 'finishedAt'=>static::FINISHED_AT]);
+        $notification = new ReencryptionFinishedNotification(['createdAt'=>static::CREATED_AT, 'finishedAt'=>static::FINISHED_AT]);
         $mail = $notification->toMail($this->user);
 
         $this->assertStringContainsString('1 hour, 23 minutes and 45 seconds', $mail->introLines[0]);

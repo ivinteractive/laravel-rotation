@@ -217,7 +217,7 @@ class Rotater implements RotaterInterface
 
         if (config('rotation.notification')) {
             $notifiable = app(config('rotation.notifiable'));
-            $notifiable->notify(new \IvInteractive\Rotation\Notifications\ReencryptionCompleteNotification($batchData));
+            $notifiable->notify(new \IvInteractive\Rotation\Notifications\ReencryptionFinishedNotification($batchData));
         }
     }
 
