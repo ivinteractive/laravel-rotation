@@ -211,14 +211,7 @@ class Rotater implements RotaterInterface
             \Illuminate\Support\Facades\Artisan::call('up');
         }
 
-        $batchData = $batch->toArray();
-
-        event(new \IvInteractive\Rotation\Events\ReencryptionFinished($batchData));
-
-        if (config('rotation.notification')) {
-            $notifiable = app(config('rotation.notifiable'));
-            $notifiable->notify(new \IvInteractive\Rotation\Notifications\ReencryptionFinishedNotification($batchData));
-        }
+        event(new \IvInteractive\Rotation\Events\ReencryptionFinished($batch->toArray()));
     }
 
     public function makeBatch(): PendingBatch

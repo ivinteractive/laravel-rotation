@@ -7,12 +7,6 @@ use IvInteractive\Rotation\Rotater;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
-    // public function setUp() : void
-    // {
-    //     parent::setUp();
-    //     // $this->loadMigrationsFrom(__DIR__ . '/Database/migrations');
-    // }
-
     public function tearDown(): void
     {
         $this->artisan('config:clear');

@@ -44,8 +44,7 @@ class RotationFinishedTest extends \IvInteractive\Rotation\Tests\TestCase
 
         config(['rotation.notification.channels' => ['mail']]);
 
-        $batch = $this->batch->dispatch();
-        $this->rotater::finish($batch);
+        $this->handleEvent();
 
         Notification::assertSentTo(
             new Notifiable(),
@@ -62,8 +61,7 @@ class RotationFinishedTest extends \IvInteractive\Rotation\Tests\TestCase
 
         config(['rotation.notification.channels' => ['slack']]);
 
-        $batch = $this->batch->dispatch();
-        $this->rotater::finish($batch);
+        $this->handleEvent();
 
         Notification::assertSentTo(
             new Notifiable(),
@@ -84,5 +82,14 @@ class RotationFinishedTest extends \IvInteractive\Rotation\Tests\TestCase
         $this->rotater::finish($batch);
 
         Event::assertDispatched(ReencryptionFinished::class);
+    }
+
+    public function handleEvent()
+    {
+        $batch = $this->batch->dispatch();
+        $this->rotater::finish($batch);
+
+        $event = new ReencryptionFinished($batch->toArray());
+        (new \IvInteractive\Rotation\Listeners\SendFinishedNotification())->handle($event);
     }
 }
