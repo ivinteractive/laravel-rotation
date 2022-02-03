@@ -106,6 +106,8 @@ The `--force` option will skip a confirmation step that comes before making any 
 
 The `IvInteractive\Rotation\Events\ReencryptionFinished` event is fired upon the completion of the batched jobs.
 
+The `IvInteractive\Rotation\Listeners\SendFinishedNotification` event listener is provided for writing a message to the logs and sending a notification to the configured recipient.
+
 ### Testing
 
 ```
