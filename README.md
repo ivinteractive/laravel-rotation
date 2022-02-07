@@ -102,6 +102,8 @@ The `--horizon` option will make the call to `horizon:terminate` instead of `que
 
 The `--force` option will skip a confirmation step that comes before making any changes to the config or pushing any jobs to the queue.
 
+The default behavior of the key rotation command is to put the application in maintenance mode while the reencryption is processing. If the application is down, the `queue:work` command or the Horizon queue configuration must set the `force` option to `true` in order for the reencryption jobs to process.
+
 ### Events
 
 The `IvInteractive\Rotation\Events\ReencryptionFinished` event is fired upon the completion of the batched jobs.
