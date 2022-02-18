@@ -137,8 +137,7 @@ class RotateKey extends KeyGenerateCommand
         });
 
         // Set the encryption key as the new key for serialization when dispatching the batch
-        \Opis\Closure\SerializableClosure::removeSecurityProvider();
-        \Opis\Closure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
+        \Laravel\SerializableClosure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
 
         // Restart Horizon or the queue
         if ($this->option('horizon')) {

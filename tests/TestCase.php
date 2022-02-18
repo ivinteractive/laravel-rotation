@@ -7,6 +7,14 @@ use IvInteractive\Rotation\Rotater;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        file_put_contents(base_path('.env'), '');
+        $this->artisan('key:generate');
+    }
+
     public function tearDown(): void
     {
         $this->artisan('config:clear');
