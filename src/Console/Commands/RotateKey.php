@@ -137,7 +137,12 @@ class RotateKey extends KeyGenerateCommand
         });
 
         // Set the encryption key as the new key for serialization when dispatching the batch
-        \Laravel\SerializableClosure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
+        if ($this->laravelVersion() < 9) {
+            \Opis\Closure\SerializableClosure::removeSecurityProvider();
+            \Opis\Closure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
+        } else {
+            \Laravel\SerializableClosure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
+        }
 
         // Restart Horizon or the queue
         if ($this->option('horizon')) {
@@ -194,5 +199,10 @@ class RotateKey extends KeyGenerateCommand
         $escaped = preg_quote('='.$this->laravel['config']['old.key'], '/');
 
         return "/^OLD_KEY{$escaped}/m";
+    }
+
+    private function laravelVersion(): int
+    {
+        return (int) explode('.', app()->version())[0];
     }
 }
