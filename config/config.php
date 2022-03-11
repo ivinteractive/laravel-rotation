@@ -63,4 +63,11 @@ return [
      * all data has been reencrypted.
      */
     'maintenance' => env('ROTATION_MAINTENANCE', true),
+
+
+    /**
+     * Whether the application should remove the old key from the environment file
+     * after the reencryption process finishes.
+     */
+    'remove_old_key' => false,
 ];

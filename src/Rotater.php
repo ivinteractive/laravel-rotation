@@ -5,6 +5,7 @@ namespace IvInteractive\Rotation;
 use Illuminate\Bus\PendingBatch;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Encryption\Encrypter;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Str;
 use IvInteractive\Rotation\Exceptions\AlreadyReencryptedException;
@@ -208,7 +209,11 @@ class Rotater implements RotaterInterface
     public static function finish(\Illuminate\Bus\Batch $batch): void
     {
         if (config('rotation.maintenance')) {
-            \Illuminate\Support\Facades\Artisan::call('up');
+            Artisan::call('up');
+        }
+
+        if (config('rotation.remove_old_key')) {
+            static::removeOldKey();
         }
 
         event(new \IvInteractive\Rotation\Events\ReencryptionFinished($batch->toArray()));
@@ -229,5 +234,31 @@ class Rotater implements RotaterInterface
         }
 
         return $batch;
+    }
+
+    protected static function removeOldKey(): void
+    {
+        $environmentFilePath = app()->environmentFilePath();
+        $contents = file_get_contents($environmentFilePath);
+
+        file_put_contents($environmentFilePath, preg_replace(
+            '/OLD_KEY=(.*)/',
+            '',
+            $contents,
+        ));
+
+        // Recache the config
+        if (file_exists(base_path('bootstrap/cache/config.php'))) {
+            // @codeCoverageIgnoreStart
+            Artisan::call('config:cache');
+            // @codeCoverageIgnoreEnd
+        }
+
+        // Restart Horizon or the queue
+        // if (true) {
+        //     Artisan::call('horizon:terminate');
+        // } else {
+        //     Artisan::call('queue:restart');
+        // }
     }
 }
