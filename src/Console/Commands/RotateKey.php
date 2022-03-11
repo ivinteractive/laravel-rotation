@@ -182,11 +182,18 @@ class RotateKey extends KeyGenerateCommand
      */
     protected function writeNewEnvironmentFileWithOld($key)
     {
-        file_put_contents($this->laravel->environmentFilePath(), preg_replace(
+        $environmentFilePath = $this->laravel->environmentFilePath();
+        $contents = file_get_contents($environmentFilePath);
+
+        if (!str_contains($contents, 'OLD_KEY=')) {
+            $contents.= PHP_EOL . 'OLD_KEY=';
+        }
+
+        file_put_contents($environmentFilePath, preg_replace(
             $this->keyReplacementPatternOld(),
-            '',
-            file_get_contents($this->laravel->environmentFilePath())
-        ).PHP_EOL.'OLD_KEY='.$key);
+            'OLD_KEY='.$key,
+            $contents,
+        ));
     }
 
     /**
@@ -196,9 +203,7 @@ class RotateKey extends KeyGenerateCommand
      */
     protected function keyReplacementPatternOld()
     {
-        $escaped = preg_quote('='.$this->laravel['config']['old.key'], '/');
-
-        return "/^OLD_KEY{$escaped}/m";
+        return "/^OLD_KEY=(.*)/m";
     }
 
     private function laravelVersion(): int
