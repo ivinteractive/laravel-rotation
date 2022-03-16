@@ -75,5 +75,5 @@ interface RotaterInterface
      */
     public static function finish(\Illuminate\Bus\Batch $batch): void;
 
-    public function makeBatch(): PendingBatch;
+    public function makeBatch(bool $horizon=false): PendingBatch;
 }

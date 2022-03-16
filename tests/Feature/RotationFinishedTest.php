@@ -84,6 +84,25 @@ class RotationFinishedTest extends \IvInteractive\Rotation\Tests\TestCase
         Event::assertDispatched(ReencryptionFinished::class);
     }
 
+    public function testDoesNotRemoveOldKey()
+    {
+        file_put_contents(base_path('.env'), 'OLD_KEY=base64:testing');
+
+        $batch = $this->batch->dispatch();
+        $this->rotater::finish($batch);
+        $this->assertStringContainsString('OLD_KEY=', file_get_contents(base_path('.env')));
+    }
+
+    public function testDoesRemoveOldKey()
+    {
+        config(['rotation.remove_old_key'=>true]);
+        file_put_contents(base_path('.env'), 'OLD_KEY=base64:testing');
+
+        $batch = $this->batch->dispatch();
+        $this->rotater::finish($batch);
+        $this->assertStringNotContainsString('OLD_KEY=', file_get_contents(base_path('.env')));
+    }
+
     public function handleEvent()
     {
         $batch = $this->batch->dispatch();

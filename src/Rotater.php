@@ -213,16 +213,17 @@ class Rotater implements RotaterInterface
         }
 
         if (config('rotation.remove_old_key')) {
-            static::removeOldKey();
+            static::removeOldKey($batch);
         }
 
         event(new \IvInteractive\Rotation\Events\ReencryptionFinished($batch->toArray()));
     }
 
-    public function makeBatch(): PendingBatch
+    public function makeBatch(bool $horizon=false): PendingBatch
     {
         $batch = Bus::batch([])
                     ->name('reencryption_' . now()->format('Y-m-d_H:i:s'))
+                    ->withOption('horizon', $horizon)
                     ->then([static::class, 'finish']);
 
         if (config('rotation.connection') !== 'default') {
@@ -236,7 +237,7 @@ class Rotater implements RotaterInterface
         return $batch;
     }
 
-    protected static function removeOldKey(): void
+    protected static function removeOldKey(\Illuminate\Bus\Batch $batch): void
     {
         $environmentFilePath = app()->environmentFilePath();
         $contents = file_get_contents($environmentFilePath);
@@ -254,11 +255,9 @@ class Rotater implements RotaterInterface
             // @codeCoverageIgnoreEnd
         }
 
-        // Restart Horizon or the queue
-        // if (true) {
-        //     Artisan::call('horizon:terminate');
-        // } else {
-        //     Artisan::call('queue:restart');
-        // }
+        // Restart the queue (the `horizon:terminate` command is only available in the console)
+        if (!$batch->options['horizon']) {
+            Artisan::call('queue:restart');
+        }
     }
 }

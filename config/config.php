@@ -64,7 +64,6 @@ return [
      */
     'maintenance' => env('ROTATION_MAINTENANCE', true),
 
-
     /**
      * Whether the application should remove the old key from the environment file
      * after the reencryption process finishes.

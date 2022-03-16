@@ -66,7 +66,7 @@ class RotateKey extends KeyGenerateCommand
 
             $this->refreshConfig($newKey);
 
-            $this->batch = $this->rotater->makeBatch();
+            $this->batch = $this->rotater->makeBatch($this->option('horizon'));
 
             foreach ($columns as $col) {
                 $this->queueToBatch($col);

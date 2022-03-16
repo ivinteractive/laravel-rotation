@@ -89,6 +89,12 @@ return [
      * all data has been reencrypted.
      */
     'maintenance' => env('ROTATION_MAINTENANCE', true),
+
+    /**
+     * Whether the application should remove the old key from the environment file
+     * after the reencryption process finishes.
+     */
+    'remove_old_key' => false,
 ];
 ```
 
@@ -103,6 +109,8 @@ The `--horizon` option will make the call to `horizon:terminate` instead of `que
 The `--force` option will skip a confirmation step that comes before making any changes to the config or pushing any jobs to the queue.
 
 The default behavior of the key rotation command is to put the application in maintenance mode while the reencryption is processing. If the application is down, the `queue:work` command or the Horizon queue configuration must set the `force` option to `true` in order for the reencryption jobs to process.
+
+It is highly recommended to use Horizon, since the reencryption queue configuration should be easier to manage. If using Horizon and `remove_old_key` is set to `true`, you should run `php artisan horizon:terminate` once the reencryption is finished to refresh the config in your queue workers (the `horizon:terminate` command is only available on the console and cannot be executed programmatically).
 
 ### Events
 
