@@ -10,7 +10,7 @@ class SendFinishedNotification implements ShouldQueue
 {
     public function handle(ReencryptionFinished $event)
     {
-        app('log')->info('Data reencryption has been completed.');
+        app('log')->info('Data re-encryption has been completed.');
 
         if (config('rotation.notification')) {
             $notifiable = app(config('rotation.notifiable'));

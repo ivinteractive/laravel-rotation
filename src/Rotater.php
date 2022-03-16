@@ -40,7 +40,7 @@ class Rotater implements RotaterInterface
     }
 
     /**
-     * Get chunked database records and push to the queue for reencryption.
+     * Get chunked database records and push to the queue for re-encryption.
      * @param  \Illuminate\Bus\PendingBatch                  $batch
      * @param  \Symfony\Component\Console\Helper\ProgressBar $bar
      */
@@ -67,7 +67,7 @@ class Rotater implements RotaterInterface
     }
 
     /**
-     * Reencrypt an individual database record.
+     * Re-encrypt an individual database record.
      * @param  \stdClass $record
      */
     public function rotateRecord(\stdClass $record): void
@@ -82,7 +82,7 @@ class Rotater implements RotaterInterface
     }
 
     /**
-     * Reencrypt an encrypted value.
+     * Re-encrypt an encrypted value.
      * @param  string $encryptedValue
      * @return string The value after encryption with the new key
      */
@@ -118,7 +118,7 @@ class Rotater implements RotaterInterface
     /**
      * Encrypt the decrypted value with the new encryption key.
      * @param  mixed   $value
-     * @return string  The reencrypted value
+     * @return string  The re-encrypted value
      */
     protected function encrypt($value): string
     {

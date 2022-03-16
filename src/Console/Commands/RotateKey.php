@@ -15,7 +15,7 @@ class RotateKey extends KeyGenerateCommand
      */
     protected $signature = 'rotation:run
                             {--horizon : Terminate Laravel Horizon instead of restarting the queue}
-                            {--force : Skip the confirmation question before batching reencryption jobs}';
+                            {--force : Skip the confirmation question before batching re-encryption jobs}';
 
     /**
      * The console command description.
@@ -87,7 +87,7 @@ class RotateKey extends KeyGenerateCommand
     }
 
     /**
-     * Push reencryption jobs to the queue.
+     * Push re-encryption jobs to the queue.
      * @param  string $column The column identifier
      */
     protected function queueToBatch(string $column): void
@@ -104,7 +104,7 @@ class RotateKey extends KeyGenerateCommand
     }
 
     /**
-     * Print out information about the columns to be reencrypted.
+     * Print out information about the columns to be re-encrypted.
      * @param  string $column The column identifier
      */
     protected function printColumnInfo(string $column): void

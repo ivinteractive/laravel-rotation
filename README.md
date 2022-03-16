@@ -30,7 +30,7 @@ use IvInteractive\Rotation;
 
 return [
     /**
-     * The columns to be decrypted and reencrypted. The columns must be
+     * The columns to be decrypted and re-encrypted. The columns must be
      * an array of string with the format '{TABLENAME}.{PRIMARY_KEY}.{COLUMN_NAME}'.
      */
     'columns' => [
@@ -51,7 +51,7 @@ return [
     'old_key' => env('OLD_KEY', null),
 
     /**
-     * This class performs decryption and reencryption while processing records. A valid
+     * This class performs decryption and re-encryption while processing records. A valid
      * rotation class must implement `IvInteractive\Rotation\RotaterInterface`.
      */
     'rotater_class' => Rotation\Rotater::class,
@@ -63,12 +63,12 @@ return [
     'notifiable' => Rotation\Notifications\Notifiable::class,
 
     /**
-     * The queue connection that will be used for the reencryption jobs.
+     * The queue connection that will be used for the re-encryption jobs.
      */
     'connection' => 'default',
 
     /**
-     * The queue that reencryption jobs will be pushed to.
+     * The queue that re-encryption jobs will be pushed to.
      */
     'queue' => 'default',
 
@@ -84,15 +84,15 @@ return [
     ],
 
     /**
-     * Whether the application should be put in maintenance mode while the reencryption
+     * Whether the application should be put in maintenance mode while the re-encryption
      * is running. This is highly recommended, as users may experience errors before
-     * all data has been reencrypted.
+     * all data has been re-encrypted.
      */
     'maintenance' => env('ROTATION_MAINTENANCE', true),
 
     /**
      * Whether the application should remove the old key from the environment file
-     * after the reencryption process finishes.
+     * after the re-encryption process finishes.
      */
     'remove_old_key' => false,
 ];

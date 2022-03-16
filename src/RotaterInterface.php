@@ -14,20 +14,20 @@ interface RotaterInterface
     public function setColumnIdentifier(string $columnIdentifier): void;
 
     /**
-     * Get chunked database records and push to the queue for reencryption.
+     * Get chunked database records and push to the queue for re-encryption.
      * @param  \Illuminate\Bus\PendingBatch                  $batch
      * @param  \Symfony\Component\Console\Helper\ProgressBar $bar
      */
     public function rotate(PendingBatch $batch, ?\Symfony\Component\Console\Helper\ProgressBar $bar=null): void;
 
     /**
-     * Reencrypt an individual database record.
+     * Re-encrypt an individual database record.
      * @param  \stdClass $record
      */
     public function rotateRecord(\stdClass $record): void;
 
     /**
-     * Reencrypt an encrypted value.
+     * Re-encrypt an encrypted value.
      * @param  string $encryptedValue
      * @return string The value after encryption with the new key
      */

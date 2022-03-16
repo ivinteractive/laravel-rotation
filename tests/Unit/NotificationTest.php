@@ -24,7 +24,7 @@ class NotificationTest extends \IvInteractive\Rotation\Tests\TestCase
         $notification = new ReencryptionFinishedNotification(['createdAt'=>static::CREATED_AT, 'finishedAt'=>static::FINISHED_AT]);
         $mail = $notification->toMail($this->user);
 
-        $this->assertSame('Reencryption complete!', $mail->subject);
+        $this->assertSame('Re-encryption complete!', $mail->subject);
     }
 
     public function testNotificationMailDuration()
