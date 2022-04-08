@@ -8,10 +8,11 @@ use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Str;
+use IvInteractive\Rotation\Contracts\RotatesApplicationKey;
 use IvInteractive\Rotation\Exceptions\AlreadyReencryptedException;
 use IvInteractive\Rotation\Jobs\ReencryptionJob;
 
-class Rotater implements RotaterInterface
+class Rotater implements RotatesApplicationKey
 {
     private $oldEncrypter;
     private $newEncrypter;

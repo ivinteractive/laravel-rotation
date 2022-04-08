@@ -4,7 +4,8 @@ namespace IvInteractive\Rotation\Console\Commands;
 
 use Illuminate\Bus\Batch;
 use Illuminate\Foundation\Console\KeyGenerateCommand;
-use IvInteractive\Rotation\RotaterInterface;
+use IvInteractive\Rotation\Contracts\RotatesApplicationKey;
+use Symfony\Component\Console\Command\Command;
 
 class RotateKey extends KeyGenerateCommand
 {
@@ -46,7 +47,7 @@ class RotateKey extends KeyGenerateCommand
     {
         $newKey = $this->generateRandomKey();
 
-        $this->rotater = app(RotaterInterface::class, ['oldKey'=>config('app.key'), 'newKey'=>$newKey]);
+        $this->rotater = app(RotatesApplicationKey::class, ['oldKey'=>config('app.key'), 'newKey'=>$newKey]);
 
         $this->info('A new application key has been generated. Laravel Rotation will re-encrypt the following data:');
         $this->newLine();

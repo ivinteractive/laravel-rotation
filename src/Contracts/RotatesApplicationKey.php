@@ -1,11 +1,11 @@
 <?php
 
-namespace IvInteractive\Rotation;
+namespace IvInteractive\Rotation\Contracts;
 
 use Illuminate\Bus\PendingBatch;
 use Illuminate\Encryption\Encrypter;
 
-interface RotaterInterface
+interface RotatesApplicationKey
 {
     /**
      * Set the identifier for the database column (table.id.column).

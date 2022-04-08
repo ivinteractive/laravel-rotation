@@ -3,6 +3,7 @@
 namespace IvInteractive\Rotation;
 
 use Illuminate\Support\ServiceProvider;
+use IvInteractive\Rotation\Contracts\RotatesApplicationKey;
 
 class RotationServiceProvider extends ServiceProvider
 {
@@ -31,6 +32,6 @@ class RotationServiceProvider extends ServiceProvider
         // Automatically apply the package configuration
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'rotation');
 
-        $this->app->bind(RotaterInterface::class, config('rotation.rotater_class'));
+        $this->app->bind(RotatesApplicationKey::class, config('rotation.rotater_class'));
     }
 }

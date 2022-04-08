@@ -52,7 +52,7 @@ return [
 
     /**
      * This class performs decryption and re-encryption while processing records. A valid
-     * rotation class must implement `IvInteractive\Rotation\RotaterInterface`.
+     * rotation class must implement `IvInteractive\Rotation\Contracts\RotatesApplicationKey`.
      */
     'rotater_class' => Rotation\Rotater::class,
 
