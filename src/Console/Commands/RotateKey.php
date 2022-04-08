@@ -59,32 +59,31 @@ class RotateKey extends KeyGenerateCommand
         }
 
         if ($this->option('force') || $this->confirm('Do you wish to continue?')) {
-            if (! $this->setKeyInEnvironmentFile($newKey)) {
-                return 1;
-            }
-
-            $this->info('Application key set successfully.');
-
-            $this->refreshConfig($newKey);
-
             $this->batch = $this->rotater->makeBatch($this->option('horizon'));
 
             foreach ($columns as $col) {
                 $this->queueToBatch($col);
             }
 
-            $this->batch->dispatch();
+            if (! $this->setKeyInEnvironmentFile($newKey)) {
+                return Command::FAILURE;
+            }
+
+            $this->info('Application key set successfully.');
+            $this->refreshConfig($newKey);
 
             if (config('rotation.maintenance')) {
                 $secret = (string) \Illuminate\Support\Str::uuid();
                 $this->info('Go to '.url($secret).' to view the site while it is in maintenance mode.');
                 $this->call('down', ['--secret'=>$secret]);
             }
+
+            $this->batch->dispatch();
         } else {
-            return 1;
+            return Command::FAILURE;
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**
