@@ -11,8 +11,9 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     {
         parent::setUp();
 
-        file_put_contents(base_path('.env'), '');
-        $this->artisan('key:generate');
+        $testKey = Encrypter::generateKey(config('app.cipher'));
+
+        file_put_contents(base_path('.env'), 'APP_KEY='.env('APP_KEY').PHP_EOL);
     }
 
     public function tearDown(): void

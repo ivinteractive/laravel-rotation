@@ -141,10 +141,11 @@ class RotateKey extends KeyGenerateCommand
         });
 
         // Set the encryption key as the new key for serialization when dispatching the batch
-        if ($this->laravelVersion() < 9) {
+        if (class_exists(\Opis\Closure\SerializableClosure::class)) {
             \Opis\Closure\SerializableClosure::removeSecurityProvider();
             \Opis\Closure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
-        } else {
+        }
+        if (class_exists(\Laravel\SerializableClosure\SerializableClosure::class)) {
             \Laravel\SerializableClosure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
         }
 
@@ -207,11 +208,8 @@ class RotateKey extends KeyGenerateCommand
      */
     protected function keyReplacementPatternOld()
     {
-        return "/^OLD_KEY=(.*)/m";
-    }
+        $escaped = preg_quote('='.$this->laravel['config']['app.key'], '/');
 
-    private function laravelVersion(): int
-    {
-        return (int) explode('.', app()->version())[0];
+        return "/^OLD_KEY{$escaped}/m";
     }
 }
