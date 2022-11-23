@@ -208,8 +208,6 @@ class RotateKey extends KeyGenerateCommand
      */
     protected function keyReplacementPatternOld()
     {
-        $escaped = preg_quote('='.$this->laravel['config']['app.key'], '/');
-
-        return "/^OLD_KEY{$escaped}/m";
+        return "/^OLD_KEY\=(.*)/m";
     }
 }

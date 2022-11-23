@@ -64,4 +64,10 @@ class RotationCommandTest extends \IvInteractive\Rotation\Tests\TestCase
         $this->artisan('rotation:run', ['--force'=>true])
              ->assertExitCode(1);
     }
+
+    public function testSetsOldKey()
+    {
+        $this->artisan('rotation:run', ['--force'=>true]);
+        $this->assertStringContainsString('OLD_KEY='.$this->environmentKey, file_get_contents(base_path('.env')));
+    }
 }

@@ -7,13 +7,13 @@ use IvInteractive\Rotation\Rotater;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
+    protected $environmentKey;
+
     public function setUp(): void
     {
         parent::setUp();
-
-        $testKey = Encrypter::generateKey(config('app.cipher'));
-
-        file_put_contents(base_path('.env'), 'APP_KEY='.env('APP_KEY').PHP_EOL);
+        $this->environmentKey = env('APP_KEY');
+        file_put_contents(base_path('.env'), 'APP_KEY='.$this->environmentKey.PHP_EOL);
     }
 
     public function tearDown(): void
