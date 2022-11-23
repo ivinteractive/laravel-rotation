@@ -91,6 +91,13 @@ return [
     'maintenance' => env('ROTATION_MAINTENANCE', true),
 
     /**
+     * Whether the secret to bypass the maintenance mode should be output. This should
+     * not be enabled if the application has functionality that could lead to invalid
+     * key errors during the re-encryption process (e.g. encrypted audit logs).
+     */
+    'maintenance-secret' => env('ROTATION_MAINTENANCE_SECRET', false),
+
+    /**
      * Whether the application should remove the old key from the environment file
      * after the re-encryption process finishes.
      */

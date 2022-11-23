@@ -73,9 +73,13 @@ class RotateKey extends KeyGenerateCommand
             $this->refreshConfig($newKey);
 
             if (config('rotation.maintenance')) {
-                $secret = (string) \Illuminate\Support\Str::uuid();
-                $this->info('Go to '.url($secret).' to view the site while it is in maintenance mode.');
-                $this->call('down', ['--secret'=>$secret]);
+                if (config('rotation.maintenance-secret')) {
+                    $secret = (string) \Illuminate\Support\Str::uuid();
+                    $this->info('Go to '.url($secret).' to view the site while it is in maintenance mode.');
+                    $this->call('down', ['--secret'=>$secret]);
+                } else {
+                    $this->call('down');
+                }
             }
 
             $this->batch->dispatch();
