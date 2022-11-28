@@ -69,7 +69,7 @@ class Rotater implements RotatesApplicationKey
 
     /**
      * Re-encrypt an individual database record.
-     * @param  \stdClass $record
+     * @param  stdClass $record
      */
     public function rotateRecord(\stdClass $record): void
     {
@@ -187,7 +187,7 @@ class Rotater implements RotatesApplicationKey
 
     /**
      * Get the old Encrypter.
-     * @return Encrypter|null
+     * @return \Illuminate\Encryption\Encrypter|null
      */
     public function getOldEncrypter(): ?Encrypter
     {
@@ -196,7 +196,7 @@ class Rotater implements RotatesApplicationKey
 
     /**
      * Get the new Encrypter.
-     * @return Encrypter|null
+     * @return \Illuminate\Encryption\Encrypter|null
      */
     public function getNewEncrypter(): ?Encrypter
     {
@@ -205,7 +205,7 @@ class Rotater implements RotatesApplicationKey
 
     /**
      * The actions to run when the batch is complete.
-     * @param  Illuminate\Bus\Batch  $batch
+     * @param  \Illuminate\Bus\Batch  $batch
      */
     public static function finish(\Illuminate\Bus\Batch $batch): void
     {
@@ -238,6 +238,11 @@ class Rotater implements RotatesApplicationKey
         return $batch;
     }
 
+    /**
+     * Remove the old application key from the .env and config.
+     * @param  \Illuminate\Bus\Batch $batch
+     * @return void
+     */
     protected static function removeOldKey(\Illuminate\Bus\Batch $batch): void
     {
         $environmentFilePath = app()->environmentFilePath();

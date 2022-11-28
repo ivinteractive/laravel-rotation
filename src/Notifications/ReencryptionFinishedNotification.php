@@ -21,7 +21,6 @@ class ReencryptionFinishedNotification extends Notification implements ShouldQue
 
     /**
      * Get the notification's delivery channels.
-     *
      * @param  mixed  $notifiable
      * @return array
      */
@@ -32,7 +31,6 @@ class ReencryptionFinishedNotification extends Notification implements ShouldQue
 
     /**
      * Get the mail representation of the notification.
-     *
      * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */

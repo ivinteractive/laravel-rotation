@@ -30,7 +30,6 @@ class RotateKey extends KeyGenerateCommand
 
     /**
      * Create a new command instance.
-     *
      * @return void
      */
     public function __construct()
@@ -40,7 +39,6 @@ class RotateKey extends KeyGenerateCommand
 
     /**
      * Execute the console command.
-     *
      * @return mixed
      */
     public function handle()
@@ -160,7 +158,6 @@ class RotateKey extends KeyGenerateCommand
 
     /**
      * Set the application key in the environment file.
-     *
      * @param  string  $key
      * @return bool
      */
@@ -183,7 +180,6 @@ class RotateKey extends KeyGenerateCommand
 
     /**
      * Write a new environment file with the given key.
-     *
      * @param  string  $key
      */
     protected function writeNewEnvironmentFileWithOld($key)
@@ -204,7 +200,6 @@ class RotateKey extends KeyGenerateCommand
 
     /**
      * Get a regex pattern that will match env OLD_KEY with any random key.
-     *
      * @return string
      */
     protected function keyReplacementPatternOld()
