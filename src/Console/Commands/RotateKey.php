@@ -70,15 +70,7 @@ class RotateKey extends KeyGenerateCommand
             $this->info('Application key set successfully.');
             $this->refreshConfig($newKey);
 
-            if (config('rotation.maintenance')) {
-                if (config('rotation.maintenance-secret')) {
-                    $secret = (string) \Illuminate\Support\Str::uuid();
-                    $this->info('Go to '.url($secret).' to view the site while it is in maintenance mode.');
-                    $this->call('down', ['--secret'=>$secret]);
-                } else {
-                    $this->call('down');
-                }
-            }
+            $this->setMaintenanceMode();
 
             $this->batch->dispatch();
         } else {
@@ -126,7 +118,7 @@ class RotateKey extends KeyGenerateCommand
     protected function refreshConfig(string $newKey): void
     {
         // Recache the config
-        if (file_exists(base_path('bootstrap/cache/config.php'))) {
+        if (file_exists(app()->bootstrapPath('cache/config.php'))) {
             // @codeCoverageIgnoreStart
             $this->call('config:cache');
             // @codeCoverageIgnoreEnd
@@ -139,20 +131,45 @@ class RotateKey extends KeyGenerateCommand
             return $this->rotater->getNewEncrypter();
         });
 
-        // Set the encryption key as the new key for serialization when dispatching the batch
-        if (class_exists(\Opis\Closure\SerializableClosure::class)) {
-            \Opis\Closure\SerializableClosure::removeSecurityProvider();
-            \Opis\Closure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
-        }
-        if (class_exists(\Laravel\SerializableClosure\SerializableClosure::class)) {
-            \Laravel\SerializableClosure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
-        }
+        $this->setSecretKey();
 
         // Restart Horizon or the queue
         if ($this->option('horizon')) {
             $this->call('horizon:terminate');
         } else {
             $this->call('queue:restart');
+        }
+    }
+
+    /**
+     * Turn on maintenance mode, if enabled in configuration.
+     * @return void
+     */
+    protected function setMaintenanceMode(): void
+    {
+        if (config('rotation.maintenance')) {
+            if (config('rotation.maintenance-secret')) {
+                $secret = (string) \Illuminate\Support\Str::uuid();
+                $this->info('Go to '.url($secret).' to view the site while it is in maintenance mode.');
+                $this->call('down', ['--secret'=>$secret]);
+            } else {
+                $this->call('down');
+            }
+        }
+    }
+
+    /**
+     * Set the encryption key as the new key for serialization when dispatching the batch.
+     * @return void
+     */
+    protected function setSecretKey(): void
+    {
+        if (class_exists(\Opis\Closure\SerializableClosure::class)) {
+            \Opis\Closure\SerializableClosure::removeSecurityProvider();
+            \Opis\Closure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
+        }
+        if (class_exists(\Laravel\SerializableClosure\SerializableClosure::class)) {
+            \Laravel\SerializableClosure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
         }
     }
 

@@ -220,11 +220,16 @@ class Rotater implements RotatesApplicationKey
         event(new \IvInteractive\Rotation\Events\ReencryptionFinished($batch->toArray()));
     }
 
-    public function makeBatch(bool $horizon=false): PendingBatch
+    /**
+     * Make the job batch for the queue.
+     * @param  bool $withHorizon
+     * @return \Illuminate\Bus\PendingBatch
+     */
+    public function makeBatch(bool $withHorizon=false): PendingBatch
     {
         $batch = Bus::batch([])
                     ->name('reencryption_' . now()->format('Y-m-d_H:i:s'))
-                    ->withOption('horizon', $horizon)
+                    ->withOption('horizon', $withHorizon)
                     ->then([static::class, 'finish']);
 
         if (config('rotation.connection') !== 'default') {
@@ -255,7 +260,7 @@ class Rotater implements RotatesApplicationKey
         ));
 
         // Recache the config
-        if (file_exists(base_path('bootstrap/cache/config.php'))) {
+        if (file_exists(app()->bootstrapPath('cache/config.php'))) {
             // @codeCoverageIgnoreStart
             Artisan::call('config:cache');
             // @codeCoverageIgnoreEnd

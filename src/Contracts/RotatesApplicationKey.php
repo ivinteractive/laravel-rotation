@@ -75,5 +75,5 @@ interface RotatesApplicationKey
      */
     public static function finish(\Illuminate\Bus\Batch $batch): void;
 
-    public function makeBatch(bool $horizon=false): PendingBatch;
+    public function makeBatch(bool $withHorizon=false): PendingBatch;
 }
