@@ -135,6 +135,7 @@ class RotateKey extends KeyGenerateCommand
         }
 
         // Set the encryption key and encrypter in the current config and container
+        config(['rotation.old_key' => config('app.key')]);
         config(['app.key' => $newKey]);
         app()->singleton('encrypter', function () {
             return $this->rotater->getNewEncrypter();
