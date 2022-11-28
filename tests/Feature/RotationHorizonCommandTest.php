@@ -19,7 +19,7 @@ class RotationHorizonCommandTest extends \IvInteractive\Rotation\Tests\TestCase
         User::factory()->count(static::COUNT)->create();
 
         config(['rotation.columns' => ['users.id.dob']]);
-        touch(base_path('.env'));
+        touch(app()->environmentFilePath());
     }
 
     public function testRestartHorizon()

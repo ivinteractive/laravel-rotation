@@ -28,7 +28,7 @@ class RotationFinishedTest extends \IvInteractive\Rotation\Tests\TestCase
         config(['rotation.columns' =>  ['users.id.dob']]);
         config(['rotation.notification.recipient.mail' => static::EMAIL_ADDRESS]);
         config(['rotation.notification.recipient.slack' => static::SLACK_WEBHOOK_URL]);
-        touch(base_path('.env'));
+        touch(app()->environmentFilePath());
 
         User::factory()->count(5)->create();
 
@@ -86,21 +86,21 @@ class RotationFinishedTest extends \IvInteractive\Rotation\Tests\TestCase
 
     public function testDoesNotRemoveOldKey()
     {
-        file_put_contents(base_path('.env'), 'OLD_KEY=base64:testing');
+        file_put_contents(app()->environmentFilePath(), 'OLD_KEY=base64:testing');
 
         $batch = $this->batch->dispatch();
         $this->rotater::finish($batch);
-        $this->assertStringContainsString('OLD_KEY=', file_get_contents(base_path('.env')));
+        $this->assertStringContainsString('OLD_KEY=', file_get_contents(app()->environmentFilePath()));
     }
 
     public function testDoesRemoveOldKey()
     {
         config(['rotation.remove_old_key'=>true]);
-        file_put_contents(base_path('.env'), 'OLD_KEY=base64:testing');
+        file_put_contents(app()->environmentFilePath(), 'OLD_KEY=base64:testing');
 
         $batch = $this->batch->dispatch();
         $this->rotater::finish($batch);
-        $this->assertStringNotContainsString('OLD_KEY=', file_get_contents(base_path('.env')));
+        $this->assertStringNotContainsString('OLD_KEY=', file_get_contents(app()->environmentFilePath()));
     }
 
     public function handleEvent()

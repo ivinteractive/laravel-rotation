@@ -21,7 +21,7 @@ class RotationCommandTest extends \IvInteractive\Rotation\Tests\TestCase
         User::factory()->count(static::COUNT)->create();
 
         config(['rotation.columns' => ['users.id.dob']]);
-        touch(base_path('.env'));
+        touch(app()->environmentFilePath());
     }
 
     public function testBatchDispatched()
@@ -59,7 +59,7 @@ class RotationCommandTest extends \IvInteractive\Rotation\Tests\TestCase
 
     public function testFailToSetKey()
     {
-        unlink(base_path('.env'));
+        unlink(app()->environmentFilePath());
 
         $this->artisan('rotation:run', ['--force'=>true])
              ->assertExitCode(1);
@@ -68,6 +68,6 @@ class RotationCommandTest extends \IvInteractive\Rotation\Tests\TestCase
     public function testSetsOldKey()
     {
         $this->artisan('rotation:run', ['--force'=>true]);
-        $this->assertStringContainsString('OLD_KEY='.$this->environmentKey, file_get_contents(base_path('.env')));
+        $this->assertStringContainsString('OLD_KEY='.$this->environmentKey, file_get_contents(app()->environmentFilePath()));
     }
 }

@@ -13,7 +13,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     {
         parent::setUp();
         $this->environmentKey = env('APP_KEY');
-        file_put_contents(base_path('.env'), 'APP_KEY='.$this->environmentKey.PHP_EOL);
+        file_put_contents(app()->environmentFilePath(), 'APP_KEY='.$this->environmentKey.PHP_EOL);
     }
 
     public function tearDown(): void
