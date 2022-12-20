@@ -12,14 +12,19 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->environmentKey = env('APP_KEY');
-        file_put_contents(app()->environmentFilePath(), 'APP_KEY='.$this->environmentKey.PHP_EOL);
+        $this->setEnvironmentKey(env('APP_KEY'));
     }
 
     public function tearDown(): void
     {
         $this->artisan('config:clear');
         parent::tearDown();
+    }
+
+    protected function setEnvironmentKey(string $applicationKey)
+    {
+        $this->environmentKey = $applicationKey;
+        file_put_contents(app()->environmentFilePath(), 'APP_KEY='.$this->environmentKey.PHP_EOL);
     }
 
     protected function getPackageProviders($app)
@@ -32,8 +37,8 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
     protected function makeRotater(bool $setColumnIdentifier=true): Rotater
     {
-        $oldKey = Encrypter::generateKey(config('app.cipher'));
-        $newKey = Encrypter::generateKey(config('app.cipher'));
+        $oldKey = Encrypter::generateKey(config('rotation.cipher.old', config('app.cipher')));
+        $newKey = Encrypter::generateKey(config('rotation.cipher.new', config('app.cipher')));
 
         $rotater = new Rotater('base64:'.base64_encode($oldKey), 'base64:'.base64_encode($newKey));
 
@@ -44,8 +49,8 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         return $rotater;
     }
 
-    protected function makeEncrypter($key)
+    protected function makeEncrypter($key, string $config='app.cipher')
     {
-        return new Encrypter($key, config('app.cipher'));
+        return new Encrypter($key, config($config));
     }
 }

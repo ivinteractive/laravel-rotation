@@ -76,4 +76,13 @@ return [
      * after the re-encryption process finishes.
      */
     'remove_old_key' => false,
+
+    /**
+     * Used when changing the cipher used for the application key. By default, the rotater
+     * will use the cipher set in config('app.cipher') for both the old and new keys.
+     */
+    // 'cipher' => [
+    //     'old' => null,
+    //     'new' => null,
+    // ],
 ];

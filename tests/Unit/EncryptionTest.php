@@ -58,6 +58,34 @@ class EncryptionTest extends \IvInteractive\Rotation\Tests\TestCase
         $this->assertSame($value, $encNew->decrypt($reencrypted));
     }
 
+    public function testCipherChange()
+    {
+        config([
+            'app.cipher' => 'AES-128-CBC',
+            'rotation.cipher' => [
+                'old' => 'AES-128-CBC',
+                'new' => 'AES-256-GCM',
+            ],
+        ]);
+
+        $this->oldKey = \Illuminate\Encryption\Encrypter::generateKey('AES-128-CBC');
+        $this->setEnvironmentKey('base64:'.base64_encode($this->oldKey));
+
+        $this->rotater = new \IvInteractive\Rotation\Rotater('base64:'.base64_encode($this->oldKey), 'base64:'.base64_encode($this->newKey));
+        $this->rotater->setColumnIdentifier('users.id.dob');
+
+        $value = 'Lorem ipsum dolor sit amet';
+        $encOld = $this->makeEncrypter($this->oldKey, 'rotation.cipher.old');
+        $encNew = $this->makeEncrypter($this->newKey, 'rotation.cipher.new');
+
+        $method = $this->getMethod('reencrypt');
+
+        $encrypted = $encOld->encrypt($value);
+        $reencrypted = $method->invokeArgs($this->rotater, [$encrypted]);
+
+        $this->assertSame($value, $encNew->decrypt($reencrypted));
+    }
+
     private function getMethod(string $methodName)
     {
         $class = new \ReflectionClass(Rotater::class);

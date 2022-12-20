@@ -27,8 +27,8 @@ class Rotater implements RotatesApplicationKey
      */
     public function __construct(string $oldKey, string $newKey)
     {
-        $this->oldEncrypter = new Encrypter($this->parseKey($oldKey), config('app.cipher'));
-        $this->newEncrypter = new Encrypter($this->parseKey($newKey), config('app.cipher'));
+        $this->oldEncrypter = new Encrypter($this->parseKey($oldKey), config('rotation.cipher.old', config('app.cipher')));
+        $this->newEncrypter = new Encrypter($this->parseKey($newKey), config('rotation.cipher.new', config('app.cipher')));
     }
 
     /**
@@ -214,8 +214,14 @@ class Rotater implements RotatesApplicationKey
         }
 
         if (config('rotation.remove_old_key')) {
-            static::removeOldKey($batch);
+            static::removeOldKey();
         }
+
+        if (config('rotation.cipher.new')) {
+            static::setNewCipher();
+        }
+
+        static::refreshConfig($batch);
 
         event(new \IvInteractive\Rotation\Events\ReencryptionFinished($batch->toArray()));
     }
@@ -244,11 +250,10 @@ class Rotater implements RotatesApplicationKey
     }
 
     /**
-     * Remove the old application key from the .env and config.
-     * @param  \Illuminate\Bus\Batch $batch
+     * Remove the old application key from the .env.
      * @return void
      */
-    protected static function removeOldKey(\Illuminate\Bus\Batch $batch): void
+    protected static function removeOldKey(): void
     {
         $environmentFilePath = app()->environmentFilePath();
         $contents = file_get_contents($environmentFilePath);
@@ -258,7 +263,20 @@ class Rotater implements RotatesApplicationKey
             '',
             $contents,
         ));
+    }
 
+    protected static function setNewCipher(): void
+    {
+
+    }
+
+    /**
+     * Refresh the config and restart the queue.
+     * @param  \Illuminate\Bus\Batch $batch
+     * @return void
+     */
+    protected static function refreshConfig(\Illuminate\Bus\Batch $batch): void
+    {
         // Recache the config
         if (file_exists(app()->bootstrapPath('cache/config.php'))) {
             // @codeCoverageIgnoreStart

@@ -102,6 +102,15 @@ return [
      * after the re-encryption process finishes.
      */
     'remove_old_key' => false,
+
+    /**
+     * Used when changing the cipher used for the application key. By default, the rotater
+     * will use the cipher set in config('app.cipher') for both the old and new keys.
+     */
+    // 'cipher' => [
+    //     'old' => null,
+    //     'new' => null,
+    // ],
 ];
 ```
 
@@ -118,6 +127,8 @@ The `--force` option will skip a confirmation step that comes before making any 
 The default behavior of the key rotation command is to put the application in maintenance mode while the reencryption is processing. If the application is down, the `queue:work` command or the Horizon queue configuration must set the `force` option to `true` in order for the reencryption jobs to process.
 
 It is highly recommended to use Horizon, since the reencryption queue configuration should be easier to manage. If using Horizon and `remove_old_key` is set to `true`, you should run `php artisan horizon:terminate` once the reencryption is finished to refresh the config in your queue workers (the `horizon:terminate` command is only available on the console and cannot be executed programmatically).
+
+By default, the key rotater will use the value of `config('app.cipher')` for decryption and reencryption. If the cipher is being changed, you can specify that in the config by setting `config('rotation.cipher')` as an array with `old` and `new` keys. This is useful for upgrading the cipher used for encryption in older applications.
 
 ### Events
 
