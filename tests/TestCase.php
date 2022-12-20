@@ -21,10 +21,22 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         parent::tearDown();
     }
 
-    protected function setEnvironmentKey(string $applicationKey)
+    protected function setEnvironmentKey(string $applicationKey): void
     {
         $this->environmentKey = $applicationKey;
         file_put_contents(app()->environmentFilePath(), 'APP_KEY='.$this->environmentKey.PHP_EOL);
+    }
+
+    protected function resetCipher()
+    {
+        $configPath = app()->configPath('app.php');
+        $contents = file_get_contents($configPath);
+
+        file_put_contents($configPath, preg_replace(
+            '/\'cipher\'(\s*)\=\>(\s*)\'(.*)\'/',
+            '\'cipher\' => \'AES-256-CBC\'',
+            $contents,
+        ));
     }
 
     protected function getPackageProviders($app)

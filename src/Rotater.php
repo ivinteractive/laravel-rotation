@@ -265,9 +265,22 @@ class Rotater implements RotatesApplicationKey
         ));
     }
 
+    /**
+     * Set the new cipher in the app.php config file.
+     * @return void
+     */
     protected static function setNewCipher(): void
     {
+        if (config('rotation.cipher.new')) {
+            $configPath = app()->configPath('app.php');
+            $contents = file_get_contents($configPath);
 
+            file_put_contents($configPath, preg_replace(
+                '/\'cipher\'(\s*)\=\>(\s*)\'(.*)\'/',
+                '\'cipher\' => \'' . config('rotation.cipher.new') . '\'',
+                $contents,
+            ));
+        }
     }
 
     /**
