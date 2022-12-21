@@ -103,6 +103,23 @@ class RotationFinishedTest extends \IvInteractive\Rotation\Tests\TestCase
         $this->assertStringNotContainsString('OLD_KEY=', file_get_contents(app()->environmentFilePath()));
     }
 
+    public function testDoesUpdateCipher()
+    {
+        config([
+            'rotation.remove_old_key' => true,
+            'app.cipher' => 'AES-128-CBC',
+            'rotation.cipher' => [
+                'old' => 'AES-128-CBC',
+                'new' => 'AES-256-GCM',
+            ],
+        ]);
+        file_put_contents(app()->environmentFilePath(), 'OLD_KEY=base64:testing');
+
+        $batch = $this->batch->dispatch();
+        $this->rotater::finish($batch);
+        $this->assertStringContainsString("'cipher' => 'AES-256-GCM'", file_get_contents(app()->configPath('app.php')));
+    }
+
     public function handleEvent()
     {
         $batch = $this->batch->dispatch();

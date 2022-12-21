@@ -18,6 +18,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     public function tearDown(): void
     {
         $this->artisan('config:clear');
+        $this->resetCipher();
         parent::tearDown();
     }
 
