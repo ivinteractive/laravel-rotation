@@ -3,7 +3,6 @@
 namespace IvInteractive\Rotation\Listeners;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use IvInteractive\Rotation\Events\ReencryptionFinished;
 
 class SendFinishedNotification implements ShouldQueue

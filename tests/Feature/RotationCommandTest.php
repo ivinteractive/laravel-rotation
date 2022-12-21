@@ -75,7 +75,7 @@ class RotationCommandTest extends \IvInteractive\Rotation\Tests\TestCase
     {
         if ($this->laravelVersion() < 9) {
             $this->markTestSkipped(
-              'The `expectsOutputToContain` method is not available.'
+                'The `expectsOutputToContain` method is not available.'
             );
         }
         config(['rotation.maintenance-secret'=>true]);
