@@ -70,4 +70,16 @@ class RotationCommandTest extends \IvInteractive\Rotation\Tests\TestCase
         $this->artisan('rotation:run', ['--force'=>true]);
         $this->assertStringContainsString('OLD_KEY='.$this->environmentKey, file_get_contents(app()->environmentFilePath()));
     }
+
+    public function testSetsMaintenanceModeSecret()
+    {
+        if ($this->laravelVersion() < 9) {
+            $this->markTestSkipped(
+              'The `expectsOutputToContain` method is not available.'
+            );
+        }
+        config(['rotation.maintenance-secret'=>true]);
+        $this->artisan('rotation:run', ['--force'=>true])
+             ->expectsOutputToContain('to view the site while it is in maintenance mode.');
+    }
 }

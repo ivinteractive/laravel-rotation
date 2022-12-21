@@ -66,4 +66,9 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     {
         return new Encrypter($key, config($config));
     }
+
+    protected function laravelVersion(): int
+    {
+        return (int) explode('.', app()->version())[0];
+    }
 }
