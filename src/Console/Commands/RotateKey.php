@@ -81,6 +81,18 @@ class RotateKey extends KeyGenerateCommand
     }
 
     /**
+     * Generate a random key for the application.
+     *
+     * @return string
+     */
+    protected function generateRandomKey()
+    {
+        return 'base64:'.base64_encode(
+            \Illuminate\Encryption\Encrypter::generateKey(config('rotation.cipher.new', config('app.cipher')))
+        );
+    }
+
+    /**
      * Push re-encryption jobs to the queue.
      * @param  string $column The column identifier
      */
