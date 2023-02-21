@@ -1,6 +1,6 @@
 <?php
 
-namespace IvInteractive\Rotation\Tests\Feature;
+namespace IvInteractive\Rotation\Tests\Unit;
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use IvInteractive\Rotation\Notifications\ReencryptionFinishedNotification;
@@ -24,7 +24,7 @@ class NotificationTest extends \IvInteractive\Rotation\Tests\TestCase
         $notification = new ReencryptionFinishedNotification(['createdAt'=>static::CREATED_AT, 'finishedAt'=>static::FINISHED_AT]);
         $mail = $notification->toMail($this->user);
 
-        $this->assertSame('Re-encryption complete!', $mail->subject);
+        $this->assertSame(trans('rotation::notification.subject'), $mail->subject);
     }
 
     public function testNotificationMailDuration()

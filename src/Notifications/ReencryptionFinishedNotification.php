@@ -33,8 +33,8 @@ class ReencryptionFinishedNotification extends Notification implements ShouldQue
     public function toMail($notifiable)
     {
         return (new MailMessage())
-                    ->subject('Re-encryption complete!')
-                    ->line('The re-encryption job has finished processing in '.$this->duration().'.');
+                    ->subject(trans('rotation::notification.subject'))
+                    ->line(trans('rotation::notification.body', ['duration' => $this->duration()]));
     }
 
     /**

@@ -10,12 +10,18 @@ class RotationServiceProvider extends ServiceProvider
     /**
      * Bootstrap the application services.
      */
-    public function boot()
+    public function boot(): void
     {
+        $this->loadTranslationsFrom(__DIR__.'/../lang', 'rotation');
+
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__.'/../config/config.php' => config_path('rotation.php'),
             ], 'rotation.config');
+
+            $this->publishes([
+                __DIR__.'/../lang' => $this->app->langPath('vendor/rotation'),
+            ]);
 
             // Registering package commands.
             $this->commands([
