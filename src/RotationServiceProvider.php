@@ -20,8 +20,8 @@ class RotationServiceProvider extends ServiceProvider
             ], 'rotation.config');
 
             $this->publishes([
-                __DIR__.'/../lang' => $this->app->langPath('vendor/rotation'),
-            ]);
+                __DIR__.'/../lang' => lang_path('vendor/rotation'),
+            ], 'rotation.lang');
 
             // Registering package commands.
             $this->commands([
