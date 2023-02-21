@@ -45,7 +45,7 @@
             "vendor/bin/phpunit"
         ],
         "cs": "vendor/bin/php-cs-fixer fix --diff",
-        "phpstan": "vendor/bin/phpstan analyse src --level=5"
+        "phpstan": "vendor/bin/phpstan analyse src --level=6"
     },
     "config": {
         "sort-packages": true,
