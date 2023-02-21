@@ -37,19 +37,19 @@ interface RotatesApplicationKey
      * Get the table for the currently-set column.
      * @return string The table name
      */
-    public function getTable(): string;
+    public function getTable(): ?string;
 
     /**
      * Get the primary key for the currently-set column.
      * @return string The primary key column name
      */
-    public function getPrimaryKey(): string;
+    public function getPrimaryKey(): ?string;
 
     /**
      * Get the name for the currently-set column.
      * @return string The column name
      */
-    public function getColumn(): string;
+    public function getColumn(): ?string;
 
     /**
      * Get the number of records for the currently-set column.
@@ -71,7 +71,7 @@ interface RotatesApplicationKey
 
     /**
      * The actions to run when the batch is complete.
-     * @param  Illuminate\Bus\Batch  $batch
+     * @param  \Illuminate\Bus\Batch  $batch
      */
     public static function finish(\Illuminate\Bus\Batch $batch): void;
 

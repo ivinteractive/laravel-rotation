@@ -14,12 +14,13 @@ use IvInteractive\Rotation\Jobs\ReencryptionJob;
 
 class Rotater implements RotatesApplicationKey
 {
-    private $oldEncrypter;
-    private $newEncrypter;
+    private Encrypter $oldEncrypter;
+    private Encrypter $newEncrypter;
 
-    private $columnIdentifier;
+    private string $columnIdentifier = '';
 
-    private $recordCounts = [];
+    /** @var array<string, int> */
+    private array $recordCounts = [];
 
     /**
      * @param string $oldKey The old base64-encoded key
@@ -69,7 +70,7 @@ class Rotater implements RotatesApplicationKey
 
     /**
      * Re-encrypt an individual database record.
-     * @param  stdClass $record
+     * @param  \stdClass $record
      */
     public function rotateRecord(\stdClass $record): void
     {
@@ -129,7 +130,7 @@ class Rotater implements RotatesApplicationKey
     /**
      * Parse the encryption key.
      *
-     * @param  string The encoded key from the config
+     * @param  string   $key The encoded key from the config
      * @return string
      */
     private function parseKey(string $key)
@@ -145,27 +146,37 @@ class Rotater implements RotatesApplicationKey
      * Get the table for the currently-set column.
      * @return string The table name
      */
-    public function getTable(): string
+    public function getTable(): ?string
     {
-        return explode('.', $this->columnIdentifier)[0];
+        return $this->getIdentifierElement(0);
     }
 
     /**
      * Get the primary key for the currently-set column.
      * @return string The primary key column name
      */
-    public function getPrimaryKey(): string
+    public function getPrimaryKey(): ?string
     {
-        return explode('.', $this->columnIdentifier)[1];
+        return $this->getIdentifierElement(1);
     }
 
     /**
      * Get the name for the currently-set column.
      * @return string The column name
      */
-    public function getColumn(): string
+    public function getColumn(): ?string
     {
-        return explode('.', $this->columnIdentifier)[2];
+        return $this->getIdentifierElement(2);
+    }
+
+    /**
+     * Get an element from the columnIdentifier property
+     * @param  int    $index
+     * @return string|null
+     */
+    protected function getIdentifierElement(int $index): ?string
+    {
+        return explode('.', $this->columnIdentifier)[$index] ?? null;
     }
 
     /**

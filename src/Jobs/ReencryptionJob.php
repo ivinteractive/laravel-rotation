@@ -18,14 +18,11 @@ class ReencryptionJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    protected $columnIdentifier;
-    protected $ids;
-
-    public function __construct(string $columnIdentifier, array $ids)
-    {
-        $this->columnIdentifier = $columnIdentifier;
-        $this->ids = $ids;
-    }
+    /**
+     * @param string $columnIdentifier
+     * @param array<int>  $ids
+     */
+    public function __construct(protected string $columnIdentifier, protected array $ids) {}
 
     public function handle()
     {

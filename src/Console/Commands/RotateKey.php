@@ -25,8 +25,8 @@ class RotateKey extends KeyGenerateCommand
      */
     protected $description = 'Rotate the application encryption key and update all encrypted data.';
 
-    protected $rotater;
-    protected $batch;
+    protected RotatesApplicationKey $rotater;
+    protected \Illuminate\Bus\PendingBatch $batch;
 
     /**
      * Create a new command instance.
@@ -197,9 +197,9 @@ class RotateKey extends KeyGenerateCommand
      * Write a new environment file with the given key.
      * @param  string  $key
      */
-    protected function writeNewEnvironmentFileWithOld($key)
+    protected function writeNewEnvironmentFileWithOld($key): void
     {
-        $environmentFilePath = $this->laravel->environmentFilePath();
+        $environmentFilePath = app()->environmentFilePath();
         $contents = file_get_contents($environmentFilePath);
 
         if (!str_contains($contents, 'OLD_KEY=')) {

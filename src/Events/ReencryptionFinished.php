@@ -12,10 +12,6 @@ class ReencryptionFinished
     use InteractsWithSockets;
     use SerializesModels;
 
-    public $batchData = [];
-
-    public function __construct(array $batchData)
-    {
-        $this->batchData = $batchData;
-    }
+    /** @param array<string, mixed> $batchData */
+    public function __construct(public array $batchData) {}
 }

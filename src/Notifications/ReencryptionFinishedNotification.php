@@ -12,12 +12,8 @@ class ReencryptionFinishedNotification extends Notification implements ShouldQue
 {
     use Queueable;
 
-    public $batchData;
-
-    public function __construct(array $batchData)
-    {
-        $this->batchData = $batchData;
-    }
+    /** @param array<string, mixed> $batchData */
+    public function __construct(public array $batchData){}
 
     /**
      * Get the notification's delivery channels.
