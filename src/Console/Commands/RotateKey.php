@@ -143,7 +143,8 @@ class RotateKey extends KeyGenerateCommand
             return $this->rotater->getNewEncrypter();
         });
 
-        $this->setSecretKey();
+        // Re-register the service provider to set the secret key
+        (new \Illuminate\Encryption\EncryptionServiceProvider(app()))->register();
 
         // Restart Horizon or the queue
         if ($this->option('horizon')) {
@@ -167,21 +168,6 @@ class RotateKey extends KeyGenerateCommand
             } else {
                 $this->call('down');
             }
-        }
-    }
-
-    /**
-     * Set the encryption key as the new key for serialization when dispatching the batch.
-     * @return void
-     */
-    protected function setSecretKey(): void
-    {
-        if (class_exists(\Opis\Closure\SerializableClosure::class)) {
-            \Opis\Closure\SerializableClosure::removeSecurityProvider();
-            \Opis\Closure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
-        }
-        if (class_exists(\Laravel\SerializableClosure\SerializableClosure::class)) {
-            \Laravel\SerializableClosure\SerializableClosure::setSecretKey(($this->rotater->getNewEncrypter())->getKey());
         }
     }
 
