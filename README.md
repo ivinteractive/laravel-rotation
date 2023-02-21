@@ -1,19 +1,20 @@
-# Laravel Rotater
+# Rotater for Laravel
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/ivinteractive/laravel-rotation.svg)](https://packagist.org/packages/ivinteractive/laravel-rotation)
 [![Total Downloads](https://img.shields.io/packagist/dt/ivinteractive/laravel-rotation.svg)](https://packagist.org/packages/ivinteractive/laravel-rotation)
-![GitHub Actions](https://github.com/ivinteractive/laravel-rotation/actions/workflows/tests.yml/badge.svg)
+![Tests Workflow](https://github.com/ivinteractive/laravel-rotation/actions/workflows/tests.yml/badge.svg)
+![PHPStan Workflow](https://github.com/ivinteractive/laravel-rotation/actions/workflows/phpstan.yml/badge.svg)
 ![License](https://img.shields.io/packagist/l/ivinteractive/laravel-rotation)
 
-Laravel Rotater is a package for reencrypting your data in case your application's encryption key becomes compromised. By running `php artisan rotation:run`, the package will generate a new application key and reencrypt all configured database columns using the the new key.
+Rotater for Laravel is a package for reencrypting your data in case your application's encryption key becomes compromised. By running `php artisan rotation:run`, the package will generate a new application key and reencrypt all configured database columns using the the new key.
 
 ### Why choose this package?
 
 While there are other key rotation packages available and you can also implement key rotation functionality manually, there are a number of features that will help key rotation run smoothly:
 
-- Laravel Rotater pushes reencryption to the queue. With Laravel Horizon or multiple queue workers, this allows the reencryption processing to complete much more quickly than running everything synchronously. Since jobs are batched, you will still know when reencryption is done.
-- Support for changing the cipher. Some older applications may still be using a shorter application key, but Laravel Rotater allows you to specify old and new ciphers so that the key can be updated.
-- Laravel Rotater runs directly on the database columns specified in the config file. It does not interact with models, which improves performance, and makes for a more drop-in solution. While you can write your own command or implementation of the `RotatesApplicationKey` interface, there's no requirement to do so and there's no need to make your models implement an interface or use a trait. If you'd like, you could even create a separate application for handling the reencryption process so it doesn't need to touch your existing codebase at all.
+- Rotater pushes reencryption to the queue. With Laravel Horizon or multiple queue workers, this allows the reencryption processing to complete much more quickly than running everything synchronously. Since jobs are batched, you will still know when reencryption is done.
+- Support for changing the cipher. Some older applications may still be using a shorter application key, but Rotater allows you to specify old and new ciphers so that the key can be updated.
+- Rotater runs directly on the database columns specified in the config file. It does not interact with models, which improves performance, and makes for a more drop-in solution. While you can write your own command or implementation of the `RotatesApplicationKey` interface, there's no requirement to do so and there's no need to make your models implement an interface or use a trait. If you'd like, you could even create a separate application for handling the reencryption process so it doesn't need to touch your existing codebase at all.
 - Quality of life improvements: support for sending a notification when reencryption finishes, and automatically turning maintenance mode on and off.
 
 ## Installation
