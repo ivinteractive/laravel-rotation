@@ -7,7 +7,7 @@ use IvInteractive\Rotation\Events\ReencryptionFinished;
 
 class SendFinishedNotification implements ShouldQueue
 {
-    public function handle(ReencryptionFinished $event)
+    public function handle(ReencryptionFinished $event): void
     {
         app('log')->info('Data re-encryption has been completed.');
 

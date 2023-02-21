@@ -24,7 +24,7 @@ class ReencryptionJob implements ShouldQueue
      */
     public function __construct(protected string $columnIdentifier, protected array $ids) {}
 
-    public function handle()
+    public function handle(): void
     {
         $rotater = app(RotatesApplicationKey::class, ['oldKey'=>config('rotation.old_key'), 'newKey'=>config('app.key')]);
         $rotater->setColumnIdentifier($this->columnIdentifier);

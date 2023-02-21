@@ -17,20 +17,20 @@ class ReencryptionFinishedNotification extends Notification implements ShouldQue
 
     /**
      * Get the notification's delivery channels.
-     * @param  mixed  $notifiable
-     * @return array
+     * @param  object  $notifiable
+     * @return array<string>
      */
-    public function via($notifiable)
+    public function via(object $notifiable): array
     {
         return config('rotation.notification.channels');
     }
 
     /**
      * Get the mail representation of the notification.
-     * @param  mixed  $notifiable
+     * @param  object  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toMail($notifiable)
+    public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage())
                     ->subject(trans('rotation::notification.subject'))
