@@ -25,4 +25,4 @@ jobs:
         with:
           path: src/
           php_version: 8.2
-          level: 6
+          level: 8

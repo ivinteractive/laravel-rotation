@@ -5,6 +5,7 @@ namespace IvInteractive\Rotation\Console\Commands;
 use Illuminate\Bus\Batch;
 use Illuminate\Foundation\Console\KeyGenerateCommand;
 use IvInteractive\Rotation\Contracts\RotatesApplicationKey;
+use IvInteractive\Rotation\Exceptions\CouldNotParseIdentifierException;
 use Symfony\Component\Console\Command\Command;
 
 class RotateKey extends KeyGenerateCommand
@@ -57,7 +58,7 @@ class RotateKey extends KeyGenerateCommand
         }
 
         if ($this->option('force') || $this->confirm('Do you wish to continue?')) {
-            $this->batch = $this->rotater->makeBatch($this->option('horizon'));
+            $this->batch = $this->rotater->makeBatch((bool) $this->option('horizon'));
 
             foreach ($columns as $col) {
                 $this->queueToBatch($col);
@@ -102,9 +103,12 @@ class RotateKey extends KeyGenerateCommand
         $this->info($message.' for '.$column.'...');
         $this->rotater->setColumnIdentifier($column);
 
-        $bar = $this->output->createProgressBar($this->rotater->getCount());
-
-        $this->rotater->rotate($this->batch, $bar);
+        try {
+            $bar = $this->output->createProgressBar($this->rotater->getCount());
+            $this->rotater->rotate($this->batch, $bar);
+        } catch (CouldNotParseIdentifierException $e) {
+            $this->info($e->getMessage());
+        }
 
         $this->newLine();
     }
@@ -117,9 +121,13 @@ class RotateKey extends KeyGenerateCommand
     {
         $this->rotater->setColumnIdentifier($column);
 
-        $this->info('Table name: '.$this->rotater->getTable());
-        $this->info('Column name: '.$this->rotater->getColumn());
-        $this->info('Number of records: '.$this->rotater->getCount());
+        try {
+            $this->info('Table name: '.$this->rotater->getTable());
+            $this->info('Column name: '.$this->rotater->getColumn());
+            $this->info('Number of records: '.$this->rotater->getCount());
+        } catch (CouldNotParseIdentifierException $e) {
+            $this->info($e->getMessage());
+        }
         $this->newLine();
     }
 
@@ -178,7 +186,7 @@ class RotateKey extends KeyGenerateCommand
      */
     protected function setKeyInEnvironmentFile($key): bool
     {
-        $currentKey = $this->laravel['config']['app.key'];
+        $currentKey = $this->laravel->get('config')['app.key'];
 
         try {
             if (!parent::setKeyInEnvironmentFile($key)) {
@@ -200,7 +208,7 @@ class RotateKey extends KeyGenerateCommand
     protected function writeNewEnvironmentFileWithOld($key): void
     {
         $environmentFilePath = app()->environmentFilePath();
-        $contents = file_get_contents($environmentFilePath);
+        $contents = file_get_contents($environmentFilePath) ?: '';
 
         if (!str_contains($contents, 'OLD_KEY=')) {
             $contents.= PHP_EOL . 'OLD_KEY=';

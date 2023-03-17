@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Str;
 use IvInteractive\Rotation\Contracts\RotatesApplicationKey;
 use IvInteractive\Rotation\Exceptions\AlreadyReencryptedException;
+use IvInteractive\Rotation\Exceptions\CouldNotParseIdentifierException;
 use IvInteractive\Rotation\Jobs\ReencryptionJob;
 
 class Rotater implements RotatesApplicationKey
@@ -101,6 +102,8 @@ class Rotater implements RotatesApplicationKey
     /**
      * Decrypt the encrypted value with the old key.
      * @param  string $encryptedValue
+     * @throws \IvInteractive\Rotation\Exceptions\AlreadyReencryptedException
+     * @throws \Illuminate\Contracts\Encryption\DecryptException
      * @return mixed  The decrypted value
      */
     protected function decrypt(string $encryptedValue)
@@ -146,7 +149,7 @@ class Rotater implements RotatesApplicationKey
      * Get the table for the currently-set column.
      * @return string The table name
      */
-    public function getTable(): ?string
+    public function getTable(): string
     {
         return $this->getIdentifierElement(0);
     }
@@ -155,7 +158,7 @@ class Rotater implements RotatesApplicationKey
      * Get the primary key for the currently-set column.
      * @return string The primary key column name
      */
-    public function getPrimaryKey(): ?string
+    public function getPrimaryKey(): string
     {
         return $this->getIdentifierElement(1);
     }
@@ -164,7 +167,7 @@ class Rotater implements RotatesApplicationKey
      * Get the name for the currently-set column.
      * @return string The column name
      */
-    public function getColumn(): ?string
+    public function getColumn(): string
     {
         return $this->getIdentifierElement(2);
     }
@@ -172,23 +175,23 @@ class Rotater implements RotatesApplicationKey
     /**
      * Get an element from the columnIdentifier property
      * @param  int    $index
-     * @return string|null
+     * @throws \IvInteractive\Rotation\Exceptions\CouldNotParseIdentifierException
+     * @return string
      */
-    protected function getIdentifierElement(int $index): ?string
+    protected function getIdentifierElement(int $index): string
     {
-        return explode('.', $this->columnIdentifier)[$index] ?? null;
+        if (($identifier = explode('.', $this->columnIdentifier)[$index] ?? null) === null)
+            throw new CouldNotParseIdentifierException('The table identifier could not be parsed: ' . $this->columnIdentifier);
+
+        return $identifier;
     }
 
     /**
      * Get the number of records for the currently-set column.
-     * @return int|null  The count
+     * @return int  The count
      */
-    public function getCount(): ?int
+    public function getCount(): int
     {
-        if (!strlen($this->getTable())) {
-            return null;
-        }
-
         if (!array_key_exists($this->columnIdentifier, $this->recordCounts)) {
             $this->recordCounts[$this->columnIdentifier] = app('db')->table($this->getTable())->whereNotNull($this->getColumn())->count();
         }
@@ -267,7 +270,7 @@ class Rotater implements RotatesApplicationKey
     protected static function removeOldKey(): void
     {
         $environmentFilePath = app()->environmentFilePath();
-        $contents = file_get_contents($environmentFilePath);
+        $contents = file_get_contents($environmentFilePath) ?: '';
 
         file_put_contents($environmentFilePath, preg_replace(
             '/OLD_KEY=(.*)/',
@@ -284,7 +287,7 @@ class Rotater implements RotatesApplicationKey
     {
         if (config('rotation.cipher.new')) {
             $configPath = app()->configPath('app.php');
-            $contents = file_get_contents($configPath);
+            $contents = file_get_contents($configPath) ?: '';
 
             file_put_contents($configPath, preg_replace(
                 '/\'cipher\'(\s*)\=\>(\s*)\'(.*)\'/',

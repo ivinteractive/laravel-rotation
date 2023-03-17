@@ -49,7 +49,20 @@ class RecordCountTest extends \IvInteractive\Rotation\Tests\TestCase
 
     public function testRecordCountNotSet()
     {
+        $this->expectException(\IvInteractive\Rotation\Exceptions\CouldNotParseIdentifierException::class);
+
         $rotater = $this->makeRotater(false);
-        $this->assertNull($rotater->getCount());
+        $rotater->getCount();
+    }
+
+    public function testRecordCountNotParseable()
+    {
+        $this->expectException(\IvInteractive\Rotation\Exceptions\CouldNotParseIdentifierException::class);
+
+        $this->rotater->setColumnIdentifier('users..name');
+        $this->rotater->setColumnIdentifier('.id.dob');
+
+        $rotater = $this->makeRotater(false);
+        $rotater->getCount();
     }
 }
