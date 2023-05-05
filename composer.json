@@ -2,8 +2,12 @@
     "name": "ivinteractive/laravel-rotation",
     "description": "A package to simplify data decryption and re-encryption when the APP_KEY needs rotation.",
     "keywords": [
-        "ivinteractive",
-        "laravel-rotation"
+        "laravel",
+        "encrypt",
+        "encryption",
+        "decrypt",
+        "decryption",
+        "security"
     ],
     "homepage": "https://github.com/ivinteractive/laravel-rotation",
     "license": "MIT",
