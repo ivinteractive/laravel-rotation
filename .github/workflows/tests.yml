@@ -18,13 +18,13 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [8.0, 8.1, 8.2]
+        php: [8.1, 8.2, 8.3]
 
     name: Tests on PHP ${{ matrix.php }} - ${{ matrix.stability }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -34,8 +34,18 @@ jobs:
           extensions: redis
           coverage: none
 
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ matrix.php }}-composer-${{ hashFiles('composer.lock', '*/composer.lock') }}
+
       - name: Install dependencies
-        run: composer update --prefer-source --no-interaction --no-progress
+        uses: php-actions/composer@v6
+        with:
+          php_version: ${{ matrix.php }}
+          php_extensions: redis pcntl
+          command: update
 
       - name: Execute tests
         run: vendor/bin/phpunit --no-coverage
