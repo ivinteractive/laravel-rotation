@@ -20,18 +20,18 @@
         }
     ],
     "require": {
-        "php": "^8.0",
-        "illuminate/support": "^9.0|^10.0"
+        "php": "^8.1",
+        "illuminate/support": "^10.0|^11.0"
     },
     "require-dev": {
         "doctrine/dbal": "^3.1",
         "friendsofphp/php-cs-fixer": "^3.0",
         "larastan/larastan": "^2.5",
         "laravel/horizon": "^5.7",
-        "laravel/slack-notification-channel": "^2.4",
-        "orchestra/testbench": "^7.0|^8.0",
-        "phpunit/phpunit": "^9.0|^10.0",
-        "predis/predis": "^1.1"
+        "laravel/slack-notification-channel": "^3.2",
+        "orchestra/testbench": "^8.0|^9.0",
+        "phpunit/phpunit": "^10.0|^11.0",
+        "predis/predis": "^2.2"
     },
     "autoload": {
         "psr-4": {
