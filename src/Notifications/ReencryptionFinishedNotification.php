@@ -3,6 +3,7 @@
 namespace IvInteractive\Rotation\Notifications;
 
 use DateTime;
+use Carbon\CarbonImmutable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use IvInteractive\Rotation\Exceptions\ConfigurationException;
@@ -61,7 +62,7 @@ class ReencryptionFinishedNotification extends Notification implements ShouldQue
         $finishedAtString = $this->batchData['finishedAt'];
         $createdAtString = $this->batchData['createdAt'];
 
-        if (!is_string($finishedAtString) || !is_string($createdAtString)) {
+        if (!($finishedAtString instanceof CarbonImmutable) || !($createdAtString instanceof CarbonImmutable)) {
             return '';
         }
 
