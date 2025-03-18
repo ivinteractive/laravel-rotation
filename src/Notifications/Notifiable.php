@@ -3,6 +3,7 @@
 namespace IvInteractive\Rotation\Notifications;
 
 use Illuminate\Notifications\Notifiable as NotifiableTrait;
+use IvInteractive\Rotation\Exceptions\ConfigurationException;
 
 class Notifiable
 {
@@ -13,7 +14,13 @@ class Notifiable
      */
     public function routeNotificationForMail()
     {
-        return config('rotation.notification.recipient.mail');
+        $mail = config('rotation.notification.recipient.mail');
+
+        if (!is_null($mail) && !is_string($mail)) {
+            throw new ConfigurationException('The mail notification recipient must be a string or left empty. (config path: rotation.notification.recipient.mail)');
+        }
+
+        return $mail;
     }
 
     /**
@@ -21,7 +28,13 @@ class Notifiable
      */
     public function routeNotificationForSlack()
     {
-        return config('rotation.notification.recipient.slack');
+        $slack = config('rotation.notification.recipient.slack');
+
+        if (!is_null($slack) && !is_string($slack)) {
+            throw new ConfigurationException('The Slack notification webhook must be a string or left empty. (config path: rotation.notification.recipient.slack)');
+        }
+
+        return $slack;
     }
 
     public function getKey(): string

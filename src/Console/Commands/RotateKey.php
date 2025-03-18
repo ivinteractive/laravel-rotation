@@ -5,6 +5,7 @@ namespace IvInteractive\Rotation\Console\Commands;
 use Illuminate\Bus\Batch;
 use Illuminate\Foundation\Console\KeyGenerateCommand;
 use IvInteractive\Rotation\Contracts\RotatesApplicationKey;
+use IvInteractive\Rotation\Exceptions\ConfigurationException;
 use IvInteractive\Rotation\Exceptions\CouldNotParseIdentifierException;
 use Symfony\Component\Console\Command\Command;
 
@@ -53,7 +54,16 @@ class RotateKey extends KeyGenerateCommand
 
         $columns = config('rotation.columns');
 
+        if (!is_array($columns)) {
+            throw new ConfigurationException('The list of columns to re-encrypt must be an array. (config path: rotation.columns)');
+        }
+
+        $columnFormatExceptionMessage = 'The columns to re-encrypt must be strings following a format of `tablename.primary_key.column`. (config path: rotation.columns)';
+
         foreach ($columns as $col) {
+            if (!is_string($col)) {
+                throw new ConfigurationException($columnFormatExceptionMessage);
+            }
             $this->printColumnInfo($col);
         }
 
@@ -61,6 +71,9 @@ class RotateKey extends KeyGenerateCommand
             $this->batch = $this->rotater->makeBatch((bool) $this->option('horizon'));
 
             foreach ($columns as $col) {
+                if (!is_string($col)) {
+                    throw new ConfigurationException($columnFormatExceptionMessage);
+                }
                 $this->queueToBatch($col);
             }
 
@@ -88,8 +101,14 @@ class RotateKey extends KeyGenerateCommand
      */
     protected function generateRandomKey()
     {
+        $cipher = config('rotation.cipher.new', config('app.cipher'));
+
+        if (!is_string($cipher)) {
+            throw new ConfigurationException('The new cipher must be a string. (config path: rotation.cipher.new)');
+        }
+
         return 'base64:'.base64_encode(
-            \Illuminate\Encryption\Encrypter::generateKey(config('rotation.cipher.new', config('app.cipher')))
+            \Illuminate\Encryption\Encrypter::generateKey($cipher)
         );
     }
 
@@ -186,7 +205,17 @@ class RotateKey extends KeyGenerateCommand
      */
     protected function setKeyInEnvironmentFile($key): bool
     {
-        $currentKey = $this->laravel->get('config')['app.key'];
+        $config = $this->laravel->get('config');
+
+        if (!$config instanceof \Illuminate\Config\Repository) {
+            return false;
+        }
+
+        $currentKey = $config['app.key'];
+
+        if (!is_string($currentKey)) {
+            return false;
+        }
 
         try {
             if (!parent::setKeyInEnvironmentFile($key)) {

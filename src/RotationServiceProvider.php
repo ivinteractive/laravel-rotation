@@ -4,6 +4,7 @@ namespace IvInteractive\Rotation;
 
 use Illuminate\Support\ServiceProvider;
 use IvInteractive\Rotation\Contracts\RotatesApplicationKey;
+use IvInteractive\Rotation\Exceptions\ConfigurationException;
 
 class RotationServiceProvider extends ServiceProvider
 {
@@ -38,6 +39,20 @@ class RotationServiceProvider extends ServiceProvider
         // Automatically apply the package configuration
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'rotation');
 
-        $this->app->bind(RotatesApplicationKey::class, config('rotation.rotater_class'));
+        $rotaterClass = config('rotation.rotater_class');
+
+        $configExceptionMessage = 'The configured rotater class must be a class-string that implements IvInteractive\Rotation\Contracts\RotatesApplicationKey. (config path: rotation.rotater_class)';
+
+        if (!is_string($rotaterClass)) {
+            throw new ConfigurationException($configExceptionMessage);
+        }
+
+        $implementedClasses = class_implements($rotaterClass);
+
+        if (!is_array($implementedClasses) || !in_array(RotatesApplicationKey::class, $implementedClasses)) {
+            throw new ConfigurationException($configExceptionMessage);
+        }
+
+        $this->app->bind(RotatesApplicationKey::class, $rotaterClass);
     }
 }

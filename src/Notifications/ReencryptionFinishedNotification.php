@@ -5,6 +5,7 @@ namespace IvInteractive\Rotation\Notifications;
 use DateTime;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use IvInteractive\Rotation\Exceptions\ConfigurationException;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -18,11 +19,17 @@ class ReencryptionFinishedNotification extends Notification implements ShouldQue
     /**
      * Get the notification's delivery channels.
      * @param  object  $notifiable
-     * @return array<string>
+     * @return array<mixed>
      */
     public function via(object $notifiable): array
     {
-        return config('rotation.notification.channels');
+        $channels = config('rotation.notification.channels', []);
+
+        if (!is_array($channels)) {
+            throw new ConfigurationException('The notification channels for the ReencryptionFinishedNotification must be an array. (config path: rotation.notification.channels)');
+        }
+
+        return $channels;
     }
 
     /**
@@ -32,9 +39,17 @@ class ReencryptionFinishedNotification extends Notification implements ShouldQue
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $duration = $this->duration();
+
+        if (strlen($duration)) {
+            $body = trans('rotation::notification.body', ['duration' => $duration]);
+        } else {
+            $body = trans('rotation::notification.body-no-duration');
+        }
+
         return (new MailMessage())
                     ->subject(trans('rotation::notification.subject'))
-                    ->line(trans('rotation::notification.body', ['duration' => $this->duration()]));
+                    ->line($body);
     }
 
     /**
@@ -43,8 +58,15 @@ class ReencryptionFinishedNotification extends Notification implements ShouldQue
      */
     protected function duration(): string
     {
-        $finished = new DateTime($this->batchData['finishedAt']);
-        $created = new DateTime($this->batchData['createdAt']);
+        $finishedAtString = $this->batchData['finishedAt'];
+        $createdAtString = $this->batchData['createdAt'];
+
+        if (!is_string($finishedAtString) || !is_string($createdAtString)) {
+            return '';
+        }
+
+        $finished = new DateTime($finishedAtString);
+        $created = new DateTime($createdAtString);
 
         $diff = $finished->diff($created);
 

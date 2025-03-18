@@ -20,7 +20,7 @@ class ReencryptionJob implements ShouldQueue
 
     /**
      * @param string $columnIdentifier
-     * @param array<int>  $ids
+     * @param array<mixed>  $ids
      */
     public function __construct(protected string $columnIdentifier, protected array $ids) {}
 

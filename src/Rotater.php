@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Str;
 use IvInteractive\Rotation\Contracts\RotatesApplicationKey;
 use IvInteractive\Rotation\Exceptions\AlreadyReencryptedException;
+use IvInteractive\Rotation\Exceptions\ConfigurationException;
 use IvInteractive\Rotation\Exceptions\CouldNotParseIdentifierException;
 use IvInteractive\Rotation\Jobs\ReencryptionJob;
 
@@ -29,8 +30,19 @@ class Rotater implements RotatesApplicationKey
      */
     public function __construct(string $oldKey, string $newKey)
     {
-        $this->oldEncrypter = new Encrypter($this->parseKey($oldKey), config('rotation.cipher.old', config('app.cipher')));
-        $this->newEncrypter = new Encrypter($this->parseKey($newKey), config('rotation.cipher.new', config('app.cipher')));
+        $oldCipher = config('rotation.cipher.old', config('app.cipher'));
+        $newCipher = config('rotation.cipher.new', config('app.cipher'));
+
+        if (!is_string($oldCipher)) {
+            throw new ConfigurationException('The old cipher must be a string. (config path: rotation.cipher.old)');
+        }
+
+        if (!is_string($newCipher)) {
+            throw new ConfigurationException('The new cipher must be a string. (config path: rotation.cipher.new)');
+        }
+
+        $this->oldEncrypter = new Encrypter($this->parseKey($oldKey), $oldCipher);
+        $this->newEncrypter = new Encrypter($this->parseKey($newKey), $newCipher);
     }
 
     /**
@@ -53,11 +65,17 @@ class Rotater implements RotatesApplicationKey
             $bar->start();
         }
 
+        $chunkSize = config('rotation.chunk_size');
+
+        if (!is_int($chunkSize)) {
+            throw new ConfigurationException('The rotation chunk size must be an integer. (config path: rotation.chunk_size)');
+        }
+
         $records = app('db')->table($this->getTable())
                             ->select([$this->getPrimaryKey(), $this->getColumn()])
                             ->whereNotNull($this->getColumn())
                             ->orderBy($this->getPrimaryKey())
-                            ->chunk(config('rotation.chunk_size'), function ($records) use ($batch, $bar) {
+                            ->chunk($chunkSize, function ($records) use ($batch, $bar) {
                                 $batch->add([new ReencryptionJob($this->columnIdentifier, $records->pluck($this->getPrimaryKey())->toArray())]);
                                 if ($bar !== null) {
                                     $bar->advance($records->count());
@@ -252,12 +270,23 @@ class Rotater implements RotatesApplicationKey
                     ->withOption('horizon', $withHorizon)
                     ->then([static::class, 'finish']);
 
-        if (config('rotation.connection') !== 'default') {
-            $batch->onConnection(config('rotation.connection'));
+        $connection = config('rotation.connection', 'default');
+
+        if ($connection !== 'default') {
+            if (!is_string($connection)) {
+                throw new ConfigurationException('The queue connection must be a string. (config path: rotation.connection)');
+            }
+
+            $batch->onConnection($connection);
         }
 
-        if (config('rotation.queue') !== 'default') {
-            $batch->onQueue(config('rotation.queue'));
+        $queue = config('rotation.queue', 'default');
+
+        if ($queue !== 'default') {
+            if (!is_string($queue) && !($queue instanceof \UnitEnum)) {
+                throw new ConfigurationException('The configured queue must be a string or an instance of UnitEnum. (config path: rotation.queue)');
+            }
+            $batch->onQueue($queue);
         }
 
         return $batch;
@@ -285,16 +314,20 @@ class Rotater implements RotatesApplicationKey
      */
     protected static function setNewCipher(): void
     {
-        if (config('rotation.cipher.new')) {
-            $configPath = app()->configPath('app.php');
-            $contents = file_get_contents($configPath) ?: '';
+        $newCipher = config('rotation.cipher.new');
 
-            file_put_contents($configPath, preg_replace(
-                '/\'cipher\'(\s*)\=\>(\s*)\'(.*)\'/',
-                '\'cipher\' => \'' . config('rotation.cipher.new') . '\'',
-                $contents,
-            ));
+        if (!is_string($newCipher)) {
+            return;
         }
+
+        $configPath = app()->configPath('app.php');
+        $contents = file_get_contents($configPath) ?: '';
+
+        file_put_contents($configPath, preg_replace(
+            '/\'cipher\'(\s*)\=\>(\s*)\'(.*)\'/',
+            '\'cipher\' => \'' . $newCipher . '\'',
+            $contents,
+        ));
     }
 
     /**
