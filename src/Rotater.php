@@ -283,8 +283,8 @@ class Rotater implements RotatesApplicationKey
         $queue = config('rotation.queue', 'default');
 
         if ($queue !== 'default') {
-            if (!is_string($queue) && !($queue instanceof \UnitEnum)) {
-                throw new ConfigurationException('The configured queue must be a string or an instance of UnitEnum. (config path: rotation.queue)');
+            if (!is_string($queue)) {
+                throw new ConfigurationException('The configured queue must be a string. (config path: rotation.queue)');
             }
             $batch->onQueue($queue);
         }
